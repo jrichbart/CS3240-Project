@@ -1,0 +1,14 @@
+language: python
+python:
+- '3.8'
+install:
+- pip install -r requirements-travis.txt
+script:
+- python manage.py test
+deploy:
+  provider: heroku
+  api_key:
+    secure: drXw+rzmtZ9H6+5qdprJI0khuDWrmGm4nyMqQOhuCaltHzVswc9tgfuWeuDD+4J1hQ1kfbgLy+AL1Toj2rdGgLX81RbhrUsImm+/HFWvDuot+Tm7IXkFHVTHb10VESu7Zlpkth6FVMgbVes6QGsoxGof1p6fhpL1o8E1IarKwlzPKmV2q24P//o039omf1FLIRIkAvEqBnBWhv0RHb+lyZfV8KPDpRSmrbt2D3aBBuTi417oZ3q15X3cCRADMIYpHwy85LWvYkO1uuBsoBTmclmMq81+mTQ0hi63q1v2K3IfqqXQMEjVMjTIoj19j6T6NZcs9CQ+2FG+oTh0X0/XvwQligaTi69h5/RiT0I6QrVCRuD3SKYZFo4ygE2womg2l5v2rBUY2G0VIUaArygBYOVh8I4xi4vsWOjMoep4bp2vN9Va3CtjvL9CVgOeyL3jDBFtY9K5CSMY1Rz24UNL0TgQavBfwmbvebBpw2SjJ4dasPp40jpysKZ2hJBia5D4IDcfvLmOXJWRBQ88/dBzpL+SC/OzTh8icz76cV04kddY+SjUpvsfgTAl3hCTMpT+40/XtlX9ciA+RwNFLUgZnr2P0hPA30tHp1qv+qQfoVki+iDRuO4/eLtjDyikFHR8JoVA/FFvATKDvJ/HQkv5GPidEViZTr7M+zQAavlLbFA=
+  app: virtual-study-buddy-finder
+  on:
+    repo: uva-cs3240-f20/project-1-10
