@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,21 +14,33 @@
   </head>
   <body>
     <div class="jumbotron">
-        <h1>Base Login Page</h1>
+      <h1>Virtual Study Buddy Login</h1>
     </div>
       <br>
 
-      <form>
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" class="form-control" id="username"  placeholder="Enter username">
-        </div>
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" class="form-control" id="password" placeholder="Password">
-        </div>
-        <button type="submit" class="btn btn-primary">Submit</button>
-      </form>
+    <div class=login-container>
+
+      {% if user.is_authenticated %}
+      <h3>
+        Welcome, {{ user.username }}!
+      </h3>
+      <a href="accounts/logout">
+        <button class="btn btn-secondary">
+          Logout
+        </button>
+      </a>
+
+      {% else %}
+      <h3>
+        Hi, nice to meet you!
+      </h3>
+      <a href="{% provider_login_url 'google' %}">
+        <button class="btn btn-primary">
+          Login with Google
+        </button>
+      </a>
+      {% endif %}
+    </div>
 
   </body>
 </html>
