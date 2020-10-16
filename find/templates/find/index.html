@@ -1,0 +1,9 @@
+{% if latest_account_list %}
+    <ul>
+    {% for user in latest_account_list %}
+        <li>{{ user.username }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No accounts are available.</p>
+{% endif %}
