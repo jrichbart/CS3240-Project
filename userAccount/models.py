@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 class userAccount(models.Model):
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
