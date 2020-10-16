@@ -23,4 +23,14 @@ def has_account(request):
 
 def view_account(request):
     currentUser = userAccount.objects.get(user=request.user)
+    context = {'acc_name' : currentUser.name}
     return HttpResponse("email: " + currentUser.user.email + " name: " + currentUser.name)
+
+def save(request):
+    try:
+        currentUser = userAccount.objects.get(user=request.user)
+        acc_name = request.POST.get("acc_name")
+        currentUser.name = acc_name
+        currentUser.save()
+    except:
+        return render(request, 'userAccount/accountForm.html')

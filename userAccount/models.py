@@ -11,3 +11,8 @@ class userAccount(models.Model):
     name = models.CharField(max_length=50)
     def __str__(self):
         return self.name
+
+class course(models.Model):
+    student = models.ForeignKey(userAccount, on_delete-models.CASCADE)
+    mnemonic = CharField(max_length=4)
+    number = CharField(max_length=4)
