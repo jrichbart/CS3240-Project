@@ -23,7 +23,7 @@
       <div class="container">
 
         <h2>Add a class below</h2>
-        <form action="{% url 'userAccount:add_class' %}" id = "class_form" method="post">
+        <form action="{% url 'userAccount:add_course' %}" id = "course_form" method="post">
             {% csrf_token %}
           <div class="form-group">
             <label for="course_mnemonic">course mnemonic</label>

@@ -45,6 +45,8 @@
         {% if courses %}
         <div class="list-group">
           {% for course in courses %}
+          <form action="{% url 'userAccount:d' %}" id = "account_form" method="post">
+
           <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
           {% endfor %}
         </div>
@@ -54,7 +56,7 @@
       </div>
       <br>
       {% endif %}
-        <a class="btn btn-primary" href="{% url 'userAccount:class_form' %}">Add a class</a>
+        <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
       </div>
   </body>
 </html>

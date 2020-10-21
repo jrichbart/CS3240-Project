@@ -51,16 +51,16 @@ def save(request):
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
 
-def class_form(request):
+def course_form(request):
     if(request.user.is_authenticated):
-        template = loader.get_template('userAccount/classForm.html')
+        template = loader.get_template('userAccount/courseForm.html')
         context = {}
         return HttpResponse(template.render(context,request))
     else:
         messages.add_message(request, messages.ERROR, "Login before attempting to view account")
         return HttpResponseRedirect(reverse('login:login'))
 
-def add_class(request):
+def add_course(request):
     try:
         student = userAccount.objects.get(user=request.user)
         mnemonic = request.POST.get("course_mnemonic")
@@ -71,7 +71,7 @@ def add_class(request):
 
         newCourse = Course(student=student, mnemonic=mnemonic, number=number)
         newCourse.save()
-        messages.add_message(request, messages.SUCCESS, "Class added successfully")
+        messages.add_message(request, messages.SUCCESS, "Course added successfully")
         return HttpResponseRedirect(reverse('userAccount:view_account'))
     except:
         if(request.user.is_authenticated):
@@ -80,3 +80,6 @@ def add_class(request):
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
+
+def delete_course(request):
+    pass
