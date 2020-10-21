@@ -82,4 +82,14 @@ def add_course(request):
             return HttpResponseRedirect(reverse('login:login'))
 
 def delete_course(request):
-    pass
+    try:
+        course_to_delete = request.POST.getlist('delete_item')
+        Course.objects.get(pk=course_to_delete[0]).delete()
+        messages.add_message(request, messages.SUCCESS, "Course removed successfully")
+        return HttpResponseRedirect(reverse('userAccount:viewAccount'))
+    except:
+        if(request.user.is_authenticated):
+            return HttpResponseRedirect(reverse('userAccount:view_account'))
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
+            return HttpResponseRedirect(reverse('login:login'))

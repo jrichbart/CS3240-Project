@@ -45,9 +45,10 @@
         {% if courses %}
         <div class="list-group">
           {% for course in courses %}
-          <form action="{% url 'userAccount:d' %}" id = "account_form" method="post">
-
-          <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
+          <form action="{% url 'userAccount:delete_course' %}" id = "delete_course" method="post">
+            {% csrf_token %}
+            <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span><button type="submit" name="delete_item" value="{{ course.pk }}">X</button></li>
+          </form>
           {% endfor %}
         </div>
         {% else %}
