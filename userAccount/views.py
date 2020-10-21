@@ -2,11 +2,10 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import userAccount
+from django.template import loader
+from django.contrib import messages
 
 # Create your views here.
-
-def index(request):
-    return HttpResponse("Hello world")
 
 def has_account(request):
     if(request.user.is_authenticated):
@@ -19,12 +18,17 @@ def has_account(request):
             new_account.save()
             return HttpResponseRedirect(reverse('userAccount:view_account'))
     else:
-        return HttpResponseRedirect(reverse('login:login')) #figure out how to either add error message or redirect to google login
+        messages.add_message(request, messages.ERROR, "Login before attempting to view account")
+        return HttpResponseRedirect(reverse('login:login'))
 
 def view_account(request):
+    template = loader.get_template('userAccount/accountForm.html')
     currentUser = userAccount.objects.get(user=request.user)
-    context = {'acc_name' : currentUser.name}
-    return HttpResponse("email: " + currentUser.user.email + " name: " + currentUser.name)
+    context = {
+        'acc_name' : currentUser.name,
+        'email' : currentUser.user.email
+    }
+    return HttpResponse(template.render(context,request))
 
 def save(request):
     try:
@@ -32,5 +36,7 @@ def save(request):
         acc_name = request.POST.get("acc_name")
         currentUser.name = acc_name
         currentUser.save()
+        messages.add_message(request, messages.SUCCESS, "Account information successfully updated")
+        return HttpResponseRedirect(reverse('userAccount:view_account'))
     except:
         return render(request, 'userAccount/accountForm.html')
