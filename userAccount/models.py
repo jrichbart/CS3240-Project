@@ -13,6 +13,6 @@ class userAccount(models.Model):
         return self.name
 
 class course(models.Model):
-    student = models.ForeignKey(userAccount, on_delete-models.CASCADE)
-    mnemonic = CharField(max_length=4)
-    number = CharField(max_length=4)
+    student = models.ForeignKey(userAccount, on_delete=models.CASCADE)
+    mnemonic = models.CharField(max_length=4)
+    number = models.CharField(max_length=4)
