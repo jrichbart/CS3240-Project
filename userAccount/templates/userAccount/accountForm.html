@@ -39,7 +39,21 @@
           <button type="submit" class="btn btn-primary">Update</button>
         </form>
       </div>
+      <br>
+
       <div class="container">
+        {% if courses %}
+        <div class="list-group">
+          {% for course in courses %}
+          <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="container">
+        <p>No courses have been added to the account.</p>
+      </div>
+      <br>
+      {% endif %}
         <a class="btn btn-primary" href="{% url 'userAccount:class_form' %}">Add a class</a>
       </div>
   </body>

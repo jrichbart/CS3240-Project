@@ -25,9 +25,11 @@ def view_account(request):
     if(request.user.is_authenticated):
         template = loader.get_template('userAccount/accountForm.html')
         currentUser = userAccount.objects.get(user=request.user)
+        courses = currentUser.courses.all() 
         context = {
             'acc_name' : currentUser.name,
-            'email' : currentUser.user.email
+            'email' : currentUser.user.email,
+            'courses' : courses,
         }
         return HttpResponse(template.render(context,request))
     else:
@@ -63,14 +65,18 @@ def add_class(request):
         student = userAccount.objects.get(user=request.user)
         mnemonic = request.POST.get("course_mnemonic")
         number = request.POST.get("course_number")
+        if (len(number)!=4 or len(mnemonic) < 2 or len(mnemonic) > 4):
+            messages.add_message(request, messages.ERROR, "Incorrect course format")
+            return HttpResponseRedirect(reverse('userAccount:view_account'))
+
         newCourse = Course(student=student, mnemonic=mnemonic, number=number)
         newCourse.save()
         messages.add_message(request, messages.SUCCESS, "Class added successfully")
         return HttpResponseRedirect(reverse('userAccount:view_account'))
     except:
         if(request.user.is_authenticated):
-            messages.add_message(request, messages.SUCCESS, "Class not added")
-            return render(request, 'userAccount/accountForm.html')
+            messages.add_message(request, messages.SUCCESS, "Course was not added")
+            return HttpResponseRedirect(reverse('userAccount:view_account'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
