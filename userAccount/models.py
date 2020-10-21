@@ -12,7 +12,9 @@ class userAccount(models.Model):
     def __str__(self):
         return self.name
 
-class course(models.Model):
-    student = models.ForeignKey(userAccount, on_delete=models.CASCADE)
+class Course(models.Model):
+    student = models.ForeignKey(userAccount, related_name='courses', on_delete=models.CASCADE)
     mnemonic = models.CharField(max_length=4)
     number = models.CharField(max_length=4)
+    def __str__(self):
+        return self.mnemonic + self.number + " for " + str(self.student)
