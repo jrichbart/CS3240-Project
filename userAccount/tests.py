@@ -60,7 +60,7 @@ class userAccountViewAccountViewTests(TestCase):
         self.assertContains(response, "John Doe")
 
 class userAccountSaveViewTests(TestCase):
-    def test_update_account(self):
+    def test_name_update_account(self):
         """
         name updates when saved
         """
@@ -68,10 +68,48 @@ class userAccountSaveViewTests(TestCase):
         create_user(user=testUser, name="John Doe")
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save')
-        data = {'acc_name' : 'James'}
+        data = {
+            'acc_name' : 'James',
+            'acc_major' : '',
+            'acc_bio' : '',
+        }
         self.client.post(url,data)
         response = self.client.get(reverse('userAccount:view_account'))
         self.assertContains(response, "James")
+
+    def test_major_update_account(self):
+        """
+        major updates when saved
+        """
+        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
+        create_user(user=testUser, name="John Doe")
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:save')
+        data = {
+            'acc_name' : 'John Doe',
+            'acc_major' : 'Psychology',
+            'acc_bio' : '',
+        }
+        self.client.post(url,data)
+        response = self.client.get(reverse('userAccount:view_account'))
+        self.assertContains(response, "Psychology")
+
+    def test_bio_update_account(self):
+        """
+        bio updates when saved
+        """
+        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
+        create_user(user=testUser, name="John Doe")
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:save')
+        data = {
+            'acc_name' : 'John Doe',
+            'acc_major' : '',
+            'acc_bio' : 'Hello I am John Doe',
+        }
+        self.client.post(url,data)
+        response = self.client.get(reverse('userAccount:view_account'))
+        self.assertContains(response, "Hello I am John Doe")
 
 class CourseModelTests(TestCase):
     def test_self_str(self):
