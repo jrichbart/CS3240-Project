@@ -26,14 +26,6 @@ class userAccountHasAccountViewTests(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, '/profile/')
 
-    def test_not_logged_in(self):
-        """
-        not logged in users get redirected to login page
-        """
-        url = reverse('userAccount:has_account')
-        response = self.client.get(url)
-        self.assertRedirects(response, '/')
-
 def create_user(user, name, major, bio):
     """
     creates a userAccount with the given user and name arguments
