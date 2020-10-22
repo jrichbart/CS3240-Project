@@ -1,0 +1,50 @@
+{% load static %}
+{% load socialaccount %}
+<html>
+{% if user.is_authenticated %}
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="/home">Virtual Study Buddy</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item active">
+          <a class="nav-link" href="/home">Study Buddy <span class="sr-only">(current)</span></a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="/account">Profile</a>
+        </li>
+      </ul>
+    </div>
+    <form class="form-inline my-2 my-lg-0">
+        <li class="nav-item active">
+            <a class="nav-link" href="/">Logout</a>
+          </li>
+      </form>
+  </nav>
+  {% block content %}
+  {% endblock %}
+  <footer class="page-footer font-small black pt-4 text-md-left bg-secondary text-white">
+    <div class="container-fluid text-center">
+      <div class="row">
+        <div class="col-md-6 mt-md-0 mt-3">
+          <h5 class="text-uppercase font-weight-bold">Hi</h5>
+          <p>I like food.</p>
+        </div>
+        <hr class="clearfix w-100 d-md-none pb-3">
+        <div class="col-md-6 mb-md-0 mb-3">
+          <h5 class="text-uppercase font-weight-bold">Author</h5>
+          <p>#TeamFireFlyGang</p>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright text-center py-3">© 2020 Copyright: Idk what I'm supposed to put here....
+    </div>
+  </footer>
+  {% else %}
+  <meta http-equiv="refresh" content="0.1; URL='https://virtual-study-buddy-finder.herokuapp.com/'" />
+  {% endif %}
+  </html>
