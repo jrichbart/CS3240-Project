@@ -1,0 +1,33 @@
+
+{% extends "login/base.html" %}
+{% block content %}
+  
+<div class="container-fluid">
+    <div class="row justify-content-md-center">
+      <div class="col-sm">
+      </div>
+      <div class="col-sm text-center">
+        <h1>Welcome, {{ user.username }}!</h1>
+        </div>
+        <div class="col-sm">
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+      <div class="col-3">
+        <img src="/static/accounts/images/students-studying.jpg" class="img-fluid" alt="Students Studying">
+      </div>
+      <div class="col-9">
+        Welcome to our Virtual Study Buddy App, the UVA exclusive study app where you can find other UVA students to study with online!
+        You can work on homework, tests, anything that your professor allows! To start finding those buddies, make sure to make a profile!
+        </div>
+    </div>
+    <div class="row justify-content-md-center">
+      <div class="col-sm">
+      </div>
+      <div class="col-sm">
+        </div>
+        <div class="col-sm">
+        </div>
+    </div>
+</div>
+{% endblock %}
