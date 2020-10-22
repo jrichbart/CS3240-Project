@@ -61,7 +61,10 @@
       </div>
       <br>
       {% endif %}
+      <div style="display: flex; justify-content: space-between; align-items: center;">
         <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
+        <a class="btn btn-success" href="{% url 'userAccount:availability' %}">Set My Availability</a>
+      </div>
       </div>
   </body>
 </html>
