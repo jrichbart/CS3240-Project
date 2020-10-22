@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.template import loader
 
 def availability(request):
-    template = loader.get_template('userProfile/availability.html')
+    template = loader.get_template('userAccount/availability.html')
     days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
     times = []
     for i in range(8, 12):
