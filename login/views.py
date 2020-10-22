@@ -4,17 +4,11 @@ from django.template import loader
 
 
 def login(request):
-    template = loader.get_template('accounts/login.html')
-    context = {}
-    return HttpResponse(template.render(context, request))
-
-
-def account(request):
-    template = loader.get_template('accounts/accounts.html')
+    template = loader.get_template('login/login.html')
     context = {}
     return HttpResponse(template.render(context, request))
 
 def home(request):
-    template = loader.get_template('accounts/home.html')
+    template = loader.get_template('login/home.html')
     context = {}
     return HttpResponse(template.render(context, request))
