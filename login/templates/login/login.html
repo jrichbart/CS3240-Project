@@ -22,7 +22,7 @@
 
       {% if user.is_authenticated %}
       <h3>
-        Welcome, {{ user.username }}!
+        Welcome, {{ user.username|title }}!
       </h3>
       <a href="/home">
       <button class="btn btn-secondary">

@@ -1,0 +1,130 @@
+{% load static %}
+{% load userAccount_extras %}
+{% load socialaccount %}
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'userProfile/availability.css' %}">
+    <title>Availability</title>
+    <script>
+        const numRows = 7 * 16;
+
+        let main = [];
+        for (let i = 0; i < numRows; i++) {
+            main.push(false);
+        }
+
+        let temp = [];
+
+        let anchor = null;
+
+        // Mode 1 is add, 2 is remove
+        let mode = 0;
+
+        function onMouseDown(element) {
+            document.onselectstart = function(){ return false; }
+            id = parseInt(element.id);
+            console.log(id);
+            if (main[id]) {
+                mode = 2;
+            } else {
+                mode = 1;
+            }
+            anchor = id;
+            main[id] = !main[id];
+            temp = Object.assign([], main);
+            applyClasses(main);
+        }
+
+        function onMouseOver(element) {
+            id = parseInt(element.id);
+            if (mode == 0 || !isValid(id)) return;
+
+            temp = Object.assign([], main);
+
+            if (id > anchor) {
+                for (let i = anchor + 1; i <= id; i++) {
+                    temp[i] = mode == 1;
+                }
+            } else if (id < anchor) {
+                for (let i = id; i < anchor; i++) {
+                    temp[i] = mode == 1;
+                }
+            }
+            applyClasses(temp);
+        }
+
+        document.addEventListener('mouseup', function () {
+            document.onselectstart = function(){ return true; }
+            anchor = null;
+            mode = 0;
+            main = Object.assign([], temp);
+        }, false)
+
+        function isValid(id) {
+            if (anchor == null) return;
+            let anchorResult = Math.floor(anchor / 16);
+            let idResult = Math.floor(id / 16);
+            return anchorResult == idResult;
+        }
+
+        function applyClasses(values) {
+            for (let i = 0; i < numRows; i++) {
+                let element = document.getElementById(i);
+                element.classList.remove("green");
+                if (values[i]) {
+                    element.classList.add("green");
+                }
+            }
+        }
+    </script>
+  </head>
+  <body>
+    <div class="jumbotron">
+        <h1>Availability</h1>
+    </div>
+    <div class="root-container">
+        <div class="main-container">
+            <div class="availability-wrapper">
+                <span class="availability-title">{{ user.username|title }}'s Weekly Availability</span>
+                <div class="availability-container">
+                    <div class="day-container">
+                        {% for time in times %}
+                            <div class="time-block"><span>{{ time }}</span></div>
+                        {% endfor %}
+                    </div>
+                    {% for day in days %}
+                        <div class="day-container">
+                            {% for j in range16 %}
+                                <div
+                                    id="{{ forloop.parentloop.counter|add:-1|multiply:16|add:j }}"
+                                    onmouseover="onMouseOver(this)" 
+                                    onmousedown="onMouseDown(this)" 
+                                    class="hour-block">
+                                </div>
+                            {% endfor %}
+                            <span class="day-text">{{ day }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="sidebar">
+                <div class="sidebar-top">
+                    <span class="sidebar-title">
+                        When are you available to study?
+                    </span>
+                    <p><em>Click and drag to set your weekly availability. Don’t worry if it will change from week to week, just try your best to give a rough estimate.</em></p>    
+                </div>
+                <div class="sidebar-bottom">
+                    <button class="btn btn-light avail-btn">Cancel</button>
+                    <button class="btn btn-success avail-btn">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
