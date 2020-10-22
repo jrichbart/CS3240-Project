@@ -28,6 +28,8 @@ def view_account(request):
         courses = currentUser.courses.all() 
         context = {
             'acc_name' : currentUser.name,
+            'acc_major' : currentUser.major,
+            'acc_bio' : currentUser.bio,
             'email' : currentUser.user.email,
             'courses' : courses,
         }
@@ -40,13 +42,18 @@ def save(request):
     try:
         currentUser = userAccount.objects.get(user=request.user)
         acc_name = request.POST.get("acc_name")
+        acc_major = request.POST.get("acc_major")
+        acc_bio = request.POST.get("acc_bio")
         currentUser.name = acc_name
+        currentUser.major = acc_major
+        currentUser.bio = acc_bio
         currentUser.save()
         messages.add_message(request, messages.SUCCESS, "Account information successfully updated")
         return HttpResponseRedirect(reverse('userAccount:view_account'))
     except:
         if(request.user.is_authenticated):
-            return render(request, 'userAccount/accountForm.html')
+            messages.add_message(request, messages.ERROR, "Error updating account information")
+            return HttpResponseRedirect(reverse('userAccount:view_account'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))

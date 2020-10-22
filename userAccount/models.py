@@ -9,6 +9,8 @@ class userAccount(models.Model):
         on_delete=models.CASCADE,
     )
     name = models.CharField(max_length=50)
+    major = models.CharField(max_length=50)
+    bio = models.TextField()
     def __str__(self):
         return self.name
 
