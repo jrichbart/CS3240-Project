@@ -31,7 +31,7 @@
     <div class=login-container>
 
       {% if user.is_authenticated %}
-      <meta http-equiv="refresh" content="0.01; URL='https://virtual-study-buddy-finder.herokuapp.com/home'" />
+      <meta http-equiv="refresh" content="0.01; URL='{% url 'login:home' %}'" />
       <h3>
         Welcome, {{ user.username|title }}!
       </h3>
