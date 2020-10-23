@@ -1,5 +1,6 @@
 {% load static %}
 {% load socialaccount %}
+<!DOCTYPE html>
 <style>
   .footer {
     position: fixed;
@@ -12,6 +13,8 @@
   }
   </style>
 <html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 {% if user.is_authenticated %}
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -23,7 +26,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
       <ul class="navbar-nav mr-auto">
         <li class="nav-item active">
-          <a class="nav-link" href="/home">Study Buddy <span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{% url 'find:index' %}">Study Buddy <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'userAccount:has_account' %}">Profile</a>
@@ -32,7 +35,7 @@
     </div>
     <form class="form-inline my-2 my-lg-0">
         <li class="nav-item active">
-            <a class="nav-link" href="accounts/logout">Logout</a>
+            <a class="nav-link" href="{% url 'account_logout' %}">Logout</a>
           </li>
       </form>
   </nav>
@@ -56,6 +59,6 @@
     </div>
   </div>
   {% else %}
-  <meta http-equiv="refresh" content="0.1; URL='https://virtual-study-buddy-finder.herokuapp.com/'" />
+  <meta http-equiv="refresh" content="0.1; URL='{% url 'login:login' %}'" />
   {% endif %}
   </html>
