@@ -20,18 +20,16 @@
     <table class="table table-hover">
         <thead class="thead-dark">
             <tr>
-                <th scope="col">Username</th>
-                <th scope="col">First</th>
-                <th scope="col">Last</th>
-                <th scope="col">Email</th>
+                <th scope="col">First Name</th>
+                <th scope="col">Major</th>
+                <th scope="col">Bio</th>
             </tr>
         </thead>
         {% for user in latest_account_list %}
         <tr>
-            <td><a href>{{ user.bio }}</a></td>
-            <td>{{ user.name }}</td>
-            <td> TEST </td>
+            <td><a href>{{ user.name }}</a></td>
             <td>{{ user.major }}</td>
+            <td>{{ user.bio }}</td>
         </tr>
         {% endfor %}
     </table>
