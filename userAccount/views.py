@@ -26,7 +26,7 @@ def view_availability(request):
         currentUser = userAccount.objects.get(user=request.user)
         availability = currentUser.availability.all()
         calendar = ""
-        if availability.count() > 0:
+        if availability[0] != None:
             calendar = availability[0].calendar
 
         template = loader.get_template('userAccount/availability.html')
@@ -54,7 +54,7 @@ def save_availability(request):
     try:
         student = userAccount.objects.get(user=request.user)
         old_availability = student.availability.all()
-        if old_availability.count() > 0:
+        if old_availability[0] != None:
             old_availability[0].delete()
             
         calendar = request.POST.get("calendar")
