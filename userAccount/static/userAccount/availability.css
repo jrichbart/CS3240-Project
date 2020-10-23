@@ -3,7 +3,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-top: 40px;
+    padding-top: 50px;
+    padding-bottom: 50px;
 }
 
 .main-container {
@@ -93,4 +94,23 @@
 
 .avail-btn {
     width: 100px !important;
+}
+
+.bottom-nav-wrapper {
+    width: 100%;
+    margin-bottom: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.bottom-nav-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 800px;
+}
+
+.bottom-nav-link {
+    font-weight: 500;
 }

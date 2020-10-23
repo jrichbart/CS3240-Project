@@ -20,3 +20,7 @@ class Course(models.Model):
     number = models.CharField(max_length=4)
     def __str__(self):
         return self.mnemonic + self.number + " for " + str(self.student)
+
+class Availability(models.Model):
+    student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
+    calendar = models.CharField(max_length=112)
