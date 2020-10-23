@@ -7,6 +7,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="{% static 'userAccount/availability.css' %}">
     <title>Availability</title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js"></script>
     <script>
         const numRows = 7 * 16;
 
@@ -14,7 +15,6 @@
         for (let i = 0; i < numRows; i++) {
             main.push(false);
         }
-
         let temp = [];
 
         let anchor = null;
@@ -22,10 +22,39 @@
         // Mode 1 is add, 2 is remove
         let mode = 0;
 
+        window.addEventListener('load', (event) => {
+            loadCalendar("{{ calendar }}");
+        });
+
+        function loadCalendar(encodedCal) {
+            console.log(encodedCal);
+            for (let i = 0; i < encodedCal.length; i++) {
+                if (i >= main.length) break;
+
+                if (encodedCal.charAt(i) === "0") {
+                    main[i] = false;
+                } else {
+                    main[i] = true;
+                }
+            }
+            applyClasses(main);
+        }
+
+        function encodeCalendar() {
+            let enc = "";
+            for (let i = 0; i < main.length; i++) {
+                if (main[i]) {
+                    enc += "X";
+                } else {
+                    enc += "0";
+                }
+            }
+            return enc;
+        }
+
         function onMouseDown(element) {
             document.onselectstart = function(){ return false; }
             id = parseInt(element.id);
-            console.log(id);
             if (main[id]) {
                 mode = 2;
             } else {
@@ -56,10 +85,12 @@
         }
 
         document.addEventListener('mouseup', function () {
-            document.onselectstart = function(){ return true; }
-            anchor = null;
-            mode = 0;
-            main = Object.assign([], temp);
+            if (anchor) {
+                document.onselectstart = function(){ return true; }
+                anchor = null;
+                mode = 0;
+                main = Object.assign([], temp);
+            }
         }, false)
 
         function isValid(id) {
@@ -78,12 +109,26 @@
                 }
             }
         }
+
+        function reset() {
+            anchor = null;
+            mode = 0;
+            main = [];
+            for (let i = 0; i < numRows; i++) {
+                main.push(false);
+            }
+            temp = Object.assign([], main);
+            applyClasses(main);
+        }
+
+        function postAvailability() {
+            const new_cal = encodeCalendar();
+            let post_data = { 'calendar': new_cal, 'csrfmiddlewaretoken': '{{ csrf_token }}' };
+            $.post("{% url 'userAccount:save_availability' %}", post_data, function(data, status) { console.log(status)});
+        }
     </script>
   </head>
   <div>
-    <div class="jumbotron">
-        <h1>Availability</h1>
-    </div>
     <div class="root-container">
         <div class="main-container">
             <div class="availability-wrapper">
@@ -117,10 +162,16 @@
                     <p><em>Click and drag to set your weekly availability. Don’t worry if it will change from week to week, just try your best to give a rough estimate.</em></p>    
                 </div>
                 <div class="sidebar-bottom">
-                    <a href="{% url 'userAccount:view_account' %}"><button class="btn btn-light avail-btn">Cancel</button></a>
-                    <a href="{% url 'login:home' %}"><button class="btn btn-success avail-btn">Save</button></a>
+                    <a onclick="reset()"><button class="btn btn-outline-danger avail-btn">Clear</button></a>
+                    <a onclick="postAvailability()"><button class="btn btn-success avail-btn">Save</button></a>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="bottom-nav-wrapper">
+        <div class="bottom-nav-container">
+            <a href="{% url 'userAccount:view_account' %}"><span class="bottom-nav-link">Back to Profile</span></a>
+            <a href="{% url 'find:index' %}"><span class="bottom-nav-link">Find Study Buddies</span></a>
         </div>
     </div>
 </div>
