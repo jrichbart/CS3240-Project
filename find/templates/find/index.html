@@ -1,9 +1,13 @@
 {% extends "login/base.html" %}
     {% block content %}
-    <h1 class="jumbotron">Available Users</h1>
+    <div class="container">
+        <div class="row justify-content-center">
+            <h1 class="display-3">Available Users</h1>
+    </div>
+    </div>
     {% if latest_account_list %}
     <table class="table table-hover">
-        <thead class="thead-dark">
+        <thead class="thead-light">
             <tr>
                 <th scope="col">First Name</th>
                 <th scope="col">Major</th>
