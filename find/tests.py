@@ -18,6 +18,6 @@ class findViewIndexViewTests(TestCase):
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
         create_user(user=testUser, name="John Doe", major='', bio='')
         login = self.client.force_login(testUser)
-        url = reverse('index')
+        url = reverse('find:index')
         response = self.client.get(url, follow=True)
         self.assertContains(response, "John Doe")
