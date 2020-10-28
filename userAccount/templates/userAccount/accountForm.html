@@ -1,5 +1,12 @@
 {% extends "login/base.html" %}
+{% load static %}
+
 {% block content %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+  <title>Account Information</title>
+</head>
+<body>
       <br>
       <div class="container">
         {% if messages %}
@@ -47,5 +54,5 @@
         <a class="btn btn-success" href="{% url 'userAccount:has_availability' %}">Set My Availability</a>
       </div>
       </div>
-      <br>
+    </body>
 {% endblock %}
