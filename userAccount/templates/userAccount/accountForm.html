@@ -39,7 +39,7 @@
           {% for course in courses %}
           <form action="{% url 'userAccount:delete_course' %}" id = "delete_course" method="post">
             {% csrf_token %}
-            <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span><button type="submit" name="delete_item" value="{{ course.pk }}">X</button></li>
+            <li class="list-group-item"><button type="submit" class="btn btn-danger" name="delete_item" value="{{ course.pk }}">Delete</button> <span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
           </form>
           {% endfor %}
         </div>
@@ -47,10 +47,11 @@
         <div class="container">
         <p>No courses have been added to the account.</p>
       </div>
-      <br>
       {% endif %}
+      <br>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
+        <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">View Matches</a>
         <a class="btn btn-success" href="{% url 'userAccount:has_availability' %}">Set My Availability</a>
       </div>
       </div>

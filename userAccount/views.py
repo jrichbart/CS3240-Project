@@ -164,3 +164,6 @@ def delete_course(request):
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
+
+def view_buddies(request):
+    pass

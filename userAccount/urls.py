@@ -12,5 +12,6 @@ urlpatterns = [
     path('delete/', views.delete_course, name='delete_course'),
     path('find/availability/', views.has_availability, name='has_availability'),
     path('availability/', views.view_availability, name="view_availability"),
-    path('availability/save', views.save_availability, name="save_availability")
+    path('availability/save', views.save_availability, name="save_availability"),
+    path('buddies/', views.view_buddies, name='view_buddies'),
 ]
