@@ -166,4 +166,14 @@ def delete_course(request):
             return HttpResponseRedirect(reverse('login:login'))
 
 def view_buddies(request):
-    pass
+    if(request.user.is_authenticated):
+        template = loader.get_template('userAccount/buddies.html')
+        currentUser = userAccount.objects.get(user=request.user)
+        context = {
+            'acc_name' : currentUser.name,
+            'buddies' :'some matches object'
+        }
+        return HttpResponse(template.render(context,request))
+    else:
+        messages.add_message(request, messages.ERROR, "Login before attempting to view buddies")
+        return HttpResponseRedirect(reverse('login:login'))

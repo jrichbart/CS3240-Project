@@ -1,0 +1,29 @@
+{% extends "login/base.html" %}
+{% load static %}
+
+{% block content %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+  <title>Your Buddies</title>
+</head>
+<body>
+      <br>
+      <div class="container">
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <p>{{ message }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+        <h3>{{ acc_name }}'s Buddies</h3>
+
+      </div>
+      <br>
+
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <a class="btn btn-primary" href="{% url 'userAccount:view_account' %}">Back to Profile</a>
+      </div>
+      </div>
+    </body>
+{% endblock %}
