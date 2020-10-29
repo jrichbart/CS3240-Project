@@ -24,3 +24,11 @@ class Course(models.Model):
 class Availability(models.Model):
     student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
     calendar = models.CharField(max_length=112)
+
+class buddies(models.Model):
+    requester = models.ForeignKey(userAccount, related_name='requester', on_delete=models.CASCADE)
+    requestee = models.ForeignKey(userAccount, related_name='requestee', on_delete=models.CASCADE)
+    request_message = models.TextField()
+    approved = models.BooleanField()
+    denied_message = models.TextField()
+    denied = models.BooleanField()
