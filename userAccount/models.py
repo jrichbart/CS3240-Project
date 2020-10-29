@@ -13,6 +13,14 @@ class userAccount(models.Model):
     bio = models.TextField()
     def __str__(self):
         return self.name
+    #def findCourses(self):
+        #pass
+    #def findBuddies(self):
+        #pass
+    #def getAvailability(self):
+        #pass
+    #def availabilityMatch(self):
+        #pass optional
 
 class Course(models.Model):
     student = models.ForeignKey(userAccount, related_name='courses', on_delete=models.CASCADE)
@@ -24,3 +32,13 @@ class Course(models.Model):
 class Availability(models.Model):
     student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
     calendar = models.CharField(max_length=112)
+
+# on request, remove from find
+class buddies(models.Model):
+    pass
+    # requester user account keys
+    # requestee user accound keys
+    # approved boolean
+    # request message associated
+    # deleted boolean
+    # denied message
