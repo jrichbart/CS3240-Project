@@ -33,6 +33,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 INSTALLED_APPS = [
     'find.apps.FindConfig',
+    'buddies.apps.BuddiesConfig',
     'login.apps.AccountsConfig',
     'userAccount.apps.UseraccountConfig',
     'django.contrib.admin',

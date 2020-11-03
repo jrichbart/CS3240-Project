@@ -1,5 +1,6 @@
 {% load static %}
 {% load socialaccount %}
+{% load userAccount_extras %}
 <!DOCTYPE html>
 <style>
   .footer {
@@ -26,7 +27,7 @@
           <a class="nav-link" href="{% url 'find:index' %}">Explore <span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{% url 'userAccount:has_account' %}">My Buddies</a>
+          <a class="nav-link" href="{% url 'buddies:index' %}">My Buddies</a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="{% url 'userAccount:has_account' %}">My Profile</a>
