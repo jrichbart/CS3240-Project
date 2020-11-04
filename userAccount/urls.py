@@ -14,4 +14,6 @@ urlpatterns = [
     path('availability/', views.view_availability, name="view_availability"),
     path('availability/save', views.save_availability, name="save_availability"),
     path('buddies/', views.view_buddies, name='view_buddies'),
+    path('buddies/<str:buddy_name>/', views.buddy_select, name='buddy_select'),
+    path('approve/', views.approve_buddy, name='approve_buddy'),
 ]
