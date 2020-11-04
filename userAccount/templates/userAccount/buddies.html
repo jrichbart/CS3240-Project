@@ -8,22 +8,86 @@
 </head>
 <body>
       <br>
+
       <div class="container">
-        {% if messages %}
-        <div class="messages">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
+        <div class="row">
+            <div class="col-md-6" style="padding-right:20px; border-right: 1px solid #ccc;">
+              <h3>My Buddies</h3>
+                <div>
+                  {% if accepted_buddies %}
+                    <div class="list-group">
+                      {% for buddy in accepted_buddies %}
+                      {% if buddy == selected_buddy %}
+                        <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
+                        {% else %}
+                        <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                  {% else %}
+                  <p>no accepted buddies</p>
+                  {% endif %}
+                </div>
+                <div>
+                  <h1>Pending Your Approval</h1>
+                  {% if pending_your_approval %}
+                  <div class="list-group">
+                      {% for buddy in pending_your_approval %}
+                        {% if buddy == selected_buddy %}
+                          <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
+                        {% else %}
+                          <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                        {% endif %}
+                      {% endfor %}
+                  </div>
+                  {% else %}
+                  <p>no requests pending</p>
+                  {% endif %}
+                </div>
+                <div>
+                  <h1>Pending Their Approval</h1>
+                  {% if pending_their_approval %}
+                  <div class="list-group">
+                    {% for buddy in pending_their_approval %}
+                    {% if buddy == selected_buddy %}
+                      <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
+                      {% else %}
+                      <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                      {% endif %}
+                      {% endfor %}
+                  </div>
+                  {% else %}
+                  <p>no requests pending</p>
+                  {% endif %}
+                  {% if messages %}
+                  <div class="messages">
+                    {% for message in messages %}
+                      <p>{{ message }}</p>
+                    {% endfor %}
+                  </div>
+                  {% endif %}
+                </div>
+            </div>
+              {% if selected_buddy %}
+              <div class="col-md-6">
+                {% if selected_buddy in pending_your_approval %}
+                <h1>{{ selected_buddy.name }}</h1>
+                <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
+                  {% csrf_token %}
+                <button type="submit" class="btn btn-danger" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
+                </form>
+                {% else %}
+                <h1>{{ selected_buddy.name }}</h1>
+                {% endif %}
+              </div>
+              {% else %}
+              <div class="col-md-6 d-flex align-items-center">
+                <p>Select a buddy to view details</p>
+              </div>
+              {% endif %}
         </div>
-        {% endif %}
-        <h3>{{ acc_name }}'s Buddies</h3>
+    </div>
 
-      </div>
-      <br>
-
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <a class="btn btn-primary" href="{% url 'userAccount:view_account' %}">Back to Profile</a>
-      </div>
       </div>
     </body>
 {% endblock %}

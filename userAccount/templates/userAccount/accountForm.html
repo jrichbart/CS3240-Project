@@ -21,7 +21,7 @@
         <form action="{% url 'userAccount:save' %}" id = "account_form" method="post">
             {% csrf_token %}
           <div class="form-group">
-            <label for="acc_name">Name</label>
+            <label for="acc_name">Preferred Name</label>
             <input type="text" class="form-control" id="acc_name" value="{{ acc_name }}" name = "acc_name">
             <label for="acc_major">Major</label>
             <input type="text" class="form-control" id="acc_major" value="{{ acc_major }}" name = "acc_major">
@@ -51,7 +51,7 @@
       <br>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
-        <a class="btn btn-primary" href="{% url 'userAccount:view_buddies' %}">View Matches</a>
+        <a class="btn btn-primary" href="{% url 'userAccount:view_buddies' %}">View Buddies</a>
         <a class="btn btn-success" href="{% url 'userAccount:has_availability' %}">Set My Availability</a>
       </div>
       </div>
