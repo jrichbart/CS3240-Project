@@ -33,12 +33,10 @@ class Availability(models.Model):
     student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
     calendar = models.CharField(max_length=112)
 
-# on request, remove from find
 class buddies(models.Model):
-    pass
-    # requester user account keys
-    # requestee user accound keys
-    # approved boolean
-    # request message associated
-    # deleted boolean
-    # denied message
+    requester = models.ForeignKey(userAccount, related_name='requester', on_delete=models.CASCADE)
+    requestee = models.ForeignKey(userAccount, related_name='requestee', on_delete=models.CASCADE)
+    request_message = models.TextField()
+    approved = models.BooleanField()
+    denied_message = models.TextField()
+    denied = models.BooleanField()
