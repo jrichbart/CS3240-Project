@@ -7,6 +7,18 @@ from django.template import loader
 
 
 def index(request):
-    latest_account_list = userAccount.objects.all()
-    context = {'latest_account_list': latest_account_list}
-    return render(request, 'buddies/index.html', context)
+    if(request.user.is_authenticated):
+        template = loader.get_template('buddies/index.html')
+        currentUser = userAccount.objects.get(user=request.user)
+        courses = currentUser.courses.all()
+        context = {
+            'acc_name' : currentUser.name,
+            'acc_major' : currentUser.major,
+            'acc_bio' : currentUser.bio,
+            'email' : currentUser.user.email,
+            'courses' : courses,
+        }
+        return HttpResponse(template.render(context,request))
+    else:
+        messages.add_message(request, messages.ERROR, "Login before attempting to view account")
+        return HttpResponseRedirect(reverse('login:login'))

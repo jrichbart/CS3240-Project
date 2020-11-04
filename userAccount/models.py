@@ -22,7 +22,7 @@ class Course(models.Model):
         return self.mnemonic + self.number + " for " + str(self.student)
 
 class Availability(models.Model):
-    student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
+    student = models.OneToOneField(userAccount, related_name='availability', on_delete=models.CASCADE)
     calendar = models.CharField(max_length=112)
 
 class buddies(models.Model):
