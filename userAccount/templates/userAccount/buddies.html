@@ -70,19 +70,45 @@
             </div>
               {% if selected_buddy %}
               <div class="col-md-6">
-                {% if selected_buddy in pending_your_approval %}
                 <h1>{{ selected_buddy.name }}</h1>
-                <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
-                  {% csrf_token %}
-                <button type="submit" class="btn btn-danger" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
-                </form>
+                {% if number_buddies == 1 %}
+                  <h4 style="color:gray">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddy</h4>
                 {% else %}
-                <h1>{{ selected_buddy.name }}</h1>
+                  <h4 style="color:gray">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddies</h4>
+                {% endif %}
+                <i style="color:gray">{{ selected_buddy.bio }}</i>
+                <h2>Shared Courses</h2>
+                {% if shared_courses %}
+                  {% for course in shared_courses %}
+                    <span class="badge badge-pill badge-primary">{{ course.mnemonic }}{{ course.number }}</span>
+                  {% endfor %}
+                {% else %}
+                  <i style="color:gray">No shared courses</i>
+                {% endif %}
+
+                {% if selected_buddy in pending_your_approval %}
+                <h2>Contact Info  <img src="{% static 'userAccount/images/padlock.png' %}" align="right" style="height: 1em; width: 1em;"/></h2> 
+                <i style="color:gray;">Contact info will be available after the request is approved</i>
+                <br>
+                <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
+                    {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
+                  </form>
+                {% elif selected_buddy in pending_their_approval %}
+                <h2>Contact Info  <img src="{% static 'userAccount/images/padlock.png' %}" align="right" style="height: 1em; width: 1em;"/></h2> 
+                  <i style="color:gray;">Contact info will be available after the request is approved</i>
+                  <br>
+                  <h4>This request is pending {{ selected_buddy.name }}'s approval</h4>
+                {% else %}
+                  <h2>Contact Info</h2>
+                  <span style="float:left;"><b style="color:gray;">Computing ID</b></span><span style="float:right; color:gray;">{{ selected_buddy.computing_id }}</span><br>​
+                  <span style="float:left;"><b style="color:gray;">Phone Number</b></span><span style="float:right; color:gray;">{{ selected_buddy.phone_number }}</span><br>​
+                  <span style="float:left;"><b style="color:gray;">Discord Username</b></span><span style="float:right; color:gray;">{{ selected_buddy.discord_name }}</span><br>​
                 {% endif %}
               </div>
               {% else %}
               <div class="col-md-6 d-flex align-items-center">
-                <p>Select a buddy to view details</p>
+                <i>Select a buddy to view details</i>
               </div>
               {% endif %}
         </div>

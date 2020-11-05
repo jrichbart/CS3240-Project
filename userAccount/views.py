@@ -187,15 +187,19 @@ def buddy_select(request, buddy_name):
     if(request.user.is_authenticated):
         buddy = User.objects.get(username=buddy_name)
         buddy_account = userAccount.objects.get(user=buddy)
+        study_buddy_list_length = len(buddy_account.getBuddies()["accepted"])
         template = loader.get_template('userAccount/buddies.html')
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
+        shared_courses = currentUser.getSharedCourses(buddy_account)
         context = {
             'acc_name' : currentUser.name,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
-            'selected_buddy' : buddy_account
+            'selected_buddy' : buddy_account,
+            'number_buddies' : study_buddy_list_length,
+            'shared_courses' : shared_courses,
         }
         return HttpResponse(template.render(context,request))
     else:

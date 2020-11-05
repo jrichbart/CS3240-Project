@@ -35,10 +35,11 @@ class userAccount(models.Model):
             else:
                 pendingYourApproval.append(buddy.requester)
         return {"accepted" : accepted, "pendingYourApproval" : pendingYourApproval, "pendingTheirApproval" : pendingTheirApproval}   
-    #def getAvailability(self):
-        #pass
-    #def availabilityMatch(self):
-        #pass optional
+    def getSharedCourses(self, user2):
+        self_courses = self.courses.all()
+        user2_courses = user2.courses.all()
+        shared = [course for course in self_courses if course in user2_courses] 
+        return shared
 
 class Course(models.Model):
     student = models.ForeignKey(userAccount, related_name='courses', on_delete=models.CASCADE)
@@ -46,6 +47,10 @@ class Course(models.Model):
     number = models.CharField(max_length=4)
     def __str__(self):
         return self.mnemonic + self.number + " for " + str(self.student)
+    def __eq__(self, other):
+        if isinstance(other, Course):
+            return (self.number == other.number and self.mnemonic == other.mnemonic)
+        return False
 
 class Availability(models.Model):
     student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
