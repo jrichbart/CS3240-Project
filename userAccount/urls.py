@@ -16,4 +16,6 @@ urlpatterns = [
     path('buddies/', views.view_buddies, name='view_buddies'),
     path('buddies/<str:buddy_name>/', views.buddy_select, name='buddy_select'),
     path('approve/', views.approve_buddy, name='approve_buddy'),
+    path('contact/', views.contact_info, name='contact_info'),
+    path('contact/save', views.save_contact, name='save_contact')
 ]

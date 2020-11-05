@@ -223,3 +223,37 @@ def approve_buddy(request):
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
+
+def contact_info(request):
+    if(request.user.is_authenticated):
+        template = loader.get_template('userAccount/contactInfoForm.html')
+        currentUser = userAccount.objects.get(user=request.user)
+        context = {
+            'computing_id' : currentUser.computing_id,
+            'phone_number' : currentUser.phone_number,
+            'discord_name' : currentUser.discord_name,
+        }
+        return HttpResponse(template.render(context,request))
+    else:
+        messages.add_message(request, messages.ERROR, "Login before attempting to edit contact info")
+        return HttpResponseRedirect(reverse('login:login'))
+
+def save_contact(request):
+    try:
+        currentUser = userAccount.objects.get(user=request.user)
+        computing_id = request.POST.get("computing_id")
+        phone_number = request.POST.get("phone_number")
+        discord_name = request.POST.get("discord_name")
+        currentUser.computing_id = computing_id
+        currentUser.phone_number = phone_number
+        currentUser.discord_name = discord_name
+        currentUser.save()
+        messages.add_message(request, messages.SUCCESS, "Contact information successfully updated")
+        return HttpResponseRedirect(reverse('userAccount:contact_info'))
+    except:
+        if(request.user.is_authenticated):
+            messages.add_message(request, messages.ERROR, "Error updating contact information")
+            return HttpResponseRedirect(reverse('userAccount:contact_info'))
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view contact information")
+            return HttpResponseRedirect(reverse('login:login'))
