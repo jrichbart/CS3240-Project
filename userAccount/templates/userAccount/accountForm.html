@@ -14,8 +14,10 @@
         <form action="{% url 'userAccount:save' %}" id = "account_form" method="post">
             {% csrf_token %}
           <div class="form-group">
-            <label for="acc_name">Name</label>
-            <input type="text" class="form-control" id="acc_name" value="{{ acc_name }}" name = "acc_name">
+            <label for="acc_first_name">First Name</label>
+            <input type="text" class="form-control" id="acc_first_name" value="{{ acc_first_name }}" name = "acc_first_name">
+            <label for="acc_last_name">Last Name</label>
+            <input type="text" class="form-control" id="acc_last_name" value="{{ acc_last_name }}" name = "acc_last_name">
             <label for="acc_major">Major</label>
             <input type="text" class="form-control" id="acc_major" value="{{ acc_major }}" name = "acc_major">
             <label for="acc_bio">Bio</label>

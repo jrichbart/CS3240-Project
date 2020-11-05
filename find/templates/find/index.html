@@ -6,7 +6,15 @@
 <script>
     let coursesSelected = [];
     let isSameMajor = false;
+    let isAvailability = false;
+    let availabilityThreshold = 40;
     let userMajor = "{{ userAccount.major }}"
+
+    function onAvailabilityInputFocus() {
+        const element = Array.from(document.getElementsByClassName("availability-checkbox"))[0];
+        element.checked = true;
+        availabilityFilterChanged(element);
+    }
 
     function courseFilterChanged(element) {
         if (element.checked) {
@@ -19,6 +27,16 @@
 
     function majorFilterChanged(element) {
         isSameMajor = element.checked;
+        applyFilters();
+    }
+
+    function availabilityFilterChanged(element) {
+        isAvailability = element.checked;
+        applyFilters();
+    }
+
+    function updateAvailabilityThreshold(element) {
+        availabilityThreshold = element.value;
         applyFilters();
     }
 
@@ -36,8 +54,14 @@
                 }
             }
 
-            let major = Array.from(allBuddies[i].getElementsByClassName("buddy-subheader-text"))[0].id;
+            const major = Array.from(allBuddies[i].getElementsByClassName("buddy-subheader-text"))[0].id;
             if (isSameMajor && major !== userMajor) {
+                isEnabled = false;
+            }
+
+            const availStr = Array.from(allBuddies[i].getElementsByClassName("availability-data"))[0].id;
+            const avail = availStr === "No Availability Data" ? -1 : parseInt(availStr.split("%")[0]);
+            if (isAvailability && avail < availabilityThreshold) {
                 isEnabled = false;
             }
             
@@ -105,10 +129,22 @@
             </span>
             <div class="filter-checkbox-list">
                 <div class="form-check course">
-                    <input class="form-check-input availability-checkbox" type="checkbox" value="" id="avail">
+                    <input
+                        class="form-check-input availability-checkbox"
+                        type="checkbox"
+                        value=""
+                        id="avail"
+                        onclick='availabilityFilterChanged(this)'
+                        >
                     <label class="form-check-label" for="">
                         <div class="availability-label">
-                            <input type="number" class="availability-input" value="50">
+                            <input
+                                type="number"
+                                class="availability-input"
+                                value="40"
+                                onchange='updateAvailabilityThreshold(this)'
+                                onfocus='onAvailabilityInputFocus()'
+                                >
                             <span>Percent Match Or Higher</span>
                         </div>
                     </label>
@@ -127,10 +163,12 @@
                     class="buddy-subheader-text"
                     >
                     {% if buddy.numBuddies == 1 %}
-                        {{buddy.major}} Major&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;{{buddy.numBuddies}} Study Buddy &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;79% Availability Match</span>
+                        {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddy &nbsp; • &nbsp; {{ buddy.availability_string }}
                     {% else %}
-                        {{buddy.major}} Major&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;{{buddy.numBuddies}} Study Buddies &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;79% Availability Match</span>
+                        {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddies &nbsp; • &nbsp; {{ buddy.availability_string }}
                     {% endif %}
+                </span>
+                <div id="{{ buddy.availability_string }}" class="availability-data"></div>
             </div>
             <div class="buddy-body-container">
                 <span class="buddy-body-text">{{buddy.bio}}</span>
@@ -148,7 +186,15 @@
                 {% endfor %}
             </div>
             <div class="buddy-footer-container">
-                <a href=""><span class="availability-link">Compare Availability</span></a>
+                {% if buddy.availability_string != "No Availability Data" %}
+                    <a href="">
+                        <span class="availability-link">
+                            Compare Availability
+                        </span>
+                    </a>
+                {% else %}
+                    <div></div>
+                {% endif %}
                 <button type="button" class="btn btn-primary">Send Buddy Request</button>
             </div>
         </div>

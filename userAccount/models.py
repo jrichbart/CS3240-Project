@@ -8,11 +8,12 @@ class userAccount(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     major = models.CharField(max_length=50)
     bio = models.TextField()
     def __str__(self):
-        return self.name
+        return self.first_name + " " + self.last_name
 
 class Course(models.Model):
     student = models.ForeignKey(userAccount, related_name='courses', on_delete=models.CASCADE)

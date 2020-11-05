@@ -2,181 +2,86 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth.models import User
-from userAccount.models import userAccount
+from userAccount.models import userAccount, Course, Availability
 
 def index(request):
-    # latest_account_list = userAccount.objects.all()
 
     template = loader.get_template('find/index.html')
 
-    user_account = {
-        "major": "CS"
-    }
+    user_account = userAccount.objects.get(user=request.user)
+    user_courses = Course.objects.filter(student=user_account)
+    user_courses = sorted(user_courses, key=lambda c: c.mnemonic)
+    try:
+        user_availability = Availability.objects.get(student=user_account).calendar
+    except:
+        user_availability = ""
 
-    user_courses = [
-        {
-            "mnemonic": "CS",
-            "number": "2150"
-        },
-        {
-            "mnemonic": "APMA",
-            "number": "3080"
-        },
-        {
-            "mnemonic": "STS",
-            "number": "2500"
-        },
-        {
-            "mnemonic": "MATH",
-            "number": "3620"
-        }
-    ]
+    # Convert courses to dicts
+    user_courses_as_dict = []
+    for course in user_courses:
+        c = {}
+        c['mnemonic'] = course.mnemonic
+        c['number'] = course.number
+        user_courses_as_dict.append(c)
 
-    user_courses = sorted(user_courses, key=lambda c: c['mnemonic'])
+    latest_account_list = userAccount.objects.all()
+    latest_account_list_as_dict = []
+    for account in latest_account_list:
+        if account.user == request.user:
+            continue
 
-    # Filter to include all accounts with at least one course match
-    filtered_buddy_list = [
-        {
-            "user": {
-                "email": "michaelscott@dundermifflin.com"
-            },
-            "firstName": "Michael",
-            "lastName": "Scott",
-            "major": "CS",
-            "bio": "Do I need to be liked? Absolutely not. I like to be liked. I enjoy being liked. I have to be liked. But it’s not like this compulsive need like my need to be praised.",
-            "courses": [
-                {
-                    "mnemonic": "CS",
-                    "number": "2150"
-                },
-                {
-                    "mnemonic": "APMA",
-                    "number": "3080"
-                },
-                {
-                    "mnemonic": "STS",
-                    "number": "2500"
-                }
-            ],
-            "availability": "",
-            "numBuddies": 3
-        },
-        {
-            "user": {
-                "email": "dwightkschrute@dundermifflin.com"
-            },
-            "firstName": "Dwight",
-            "lastName": "Schrute",
-            "major": "CS",
-            "bio": "When my mother was pregnant with me, they did an ultrasound and found she was having twins. When they did another ultrasound a few weeks later, they discovered that I had adsorbed the other fetus. Do I regret this? No.",
-            "courses": [
-                {
-                    "mnemonic": "CS",
-                    "number": "2150"
-                },
-                {
-                    "mnemonic": "APMA",
-                    "number": "3080"
-                }
-            ],
-            "availability": "",
-            "numBuddies": 0
-        },
-        {
-            "user": {
-                "email": "kevin@dundermifflin.com"
-            },
-            "firstName": "Kevin",
-            "lastName": "Malone",
-            "major": "Math",
-            "bio": "The only problem is whenever I try to make a taco, I get too excited and crush it.",
-            "courses": [
-                {
-                    "mnemonic": "CPE",
-                    "number": "2090"
-                },
-                {
-                    "mnemonic": "MATH",
-                    "number": "3620"
-                },
-                {
-                    "mnemonic": "CS",
-                    "number": "2150"
-                },
-                {
-                    "mnemonic": "APMA",
-                    "number": "3080"
-                },
-                {
-                    "mnemonic": "STS",
-                    "number": "2500"
-                }
-            ],
-            "availability": "",
-            "numBuddies": 6
-        },
-        {
-            "user": {
-                "email": "angelamartin@dundermifflin.com"
-            },
-            "firstName": "Angela",
-            "lastName": "Martin",
-            "major": "Math",
-            "bio": "I am proud to announce that there is a new addition to the Martin family. She’s hypoallergenic. She doesn’t struggle when you try to dress her. She’s a third-generation show cat.",
-            "courses": [
-                {
-                    "mnemonic": "CS",
-                    "number": "1110"
-                },
-                {
-                    "mnemonic": "MATH",
-                    "number": "3620"
-                },
-                {
-                    "mnemonic": "MSE",
-                    "number": "1110"
-                },
-                {
-                    "mnemonic": "APMA",
-                    "number": "3080"
-                },
-                {
-                    "mnemonic": "STS",
-                    "number": "4200"
-                }
-            ],
-            "availability": "",
-            "numBuddies": 6
-        },
-        {
-            "user": {
-                "email": "pamhalpert@dundermifflin.com"
-            },
-            "firstName": "Pam",
-            "lastName": "Halpert",
-            "major": "CS",
-            "bio": "I can tell Michael's mood by which comedy routine he chooses to do. The more infantile, the more upset he is. And he just skipped the Ace Ventura talking butt thing. He never skips it. This is bad.",
-            "courses": [
-                {
-                    "mnemonic": "CS",
-                    "number": "1110"
-                },
-                {
-                    "mnemonic": "APMA",
-                    "number": "3080"
-                }
-            ],
-            "availability": "",
-            "numBuddies": 1
-        },
-    ]
+        account_user = userAccount.objects.get(user=account.user)
+        account_courses = Course.objects.filter(student=account_user)
+        account_courses_as_dict = []
+        match_found = False
 
-    for buddy in filtered_buddy_list:
+        for course in account_courses:
+            _c = {}
+            _c['mnemonic'] = course.mnemonic
+            _c['number'] = course.number
+            if _c in user_courses_as_dict:
+                match_found = True
+            account_courses_as_dict.append(_c)
+
+        # If no courses match the user's, disregard this account
+        if not match_found:
+            continue
+
+        # Get availability
+        try:
+            account_availability = Availability.objects.get(student=account_user).calendar
+        except:
+            account_availability = ""
+
+
+        a = {}
+        a['user'] = account_user
+        a['firstName'] = account.first_name
+        a['lastName'] = account.last_name
+        a['major'] = account.major
+        a['bio'] = account.bio
+        a['numBuddies'] = 0
+        a['courses'] = account_courses_as_dict
+        a['availability_string'] = get_availability_string(user_availability, account_availability)
+        latest_account_list_as_dict.append(a)
+
+    # Sort each buddy's courses
+    for buddy in latest_account_list_as_dict:
         buddy['courses'] = sorted(buddy['courses'], key=lambda c: c['mnemonic'])
 
     context = {
-        'filtered_buddy_list': filtered_buddy_list,
+        'filtered_buddy_list': latest_account_list_as_dict,
         'userAccount': user_account,
-        'userCourses': user_courses
+        'userCourses': user_courses_as_dict
         }
     return HttpResponse(template.render(context, request))
+
+def get_availability_string(u, a):
+    if u == "" or a == "" or len(u) != len(a):
+        return "No Availability Data"
+    else:
+        matches = 0
+        for i in range(len(u)):
+            if u[i] == a[i]:
+                matches += 1
+        return str(int(100 * matches / len(u))) + "% Availability Match"

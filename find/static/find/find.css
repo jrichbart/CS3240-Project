@@ -170,3 +170,7 @@
 .availability-link {
     font-weight: 500;
 }
+
+.availability-data {
+    display: none;
+}
