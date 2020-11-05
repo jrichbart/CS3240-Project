@@ -1,24 +1,287 @@
 {% extends "login/base.html" %}
-    {% block content %}
-    <h1 class="jumbotron">My Buddies</h1>
-    {% if latest_account_list %}
-    <table class="table table-hover">
-        <thead class="thead-dark">
-            <tr>
-                <th scope="col">Firs</th>
-                <th scope="col">Major</th>
-                <th scope="col">Bio</th>
-            </tr>
-        </thead>
-        {% for user in latest_account_list %}
-        <tr>
-            <td><a href>{{ user.name }}</a></td>
-            <td>{{ user.major }}</td>
-            <td>{{ user.bio }}</td>
-        </tr>
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'buddies/buddies.css' %}">
+<script>
+    let coursesSelected = [];
+    let isSameMajor = false;
+    let isAvailability = false;
+    let availabilityThreshold = 40;
+    let userMajor = "{{ userAccount.major }}"
+    document.getElementById("display").onclick = displayBuddy()
+    function displayBuddy() {
+        document.getElementById("display").value = "Hello World!"
+    }
+    function onAvailabilityInputFocus() {
+        const element = Array.from(document.getElementsByClassName("availability-checkbox"))[0];
+        element.checked = true;
+        availabilityFilterChanged(element);
+    }
+    function courseFilterChanged(element) {
+        if (element.checked) {
+            coursesSelected.push(element.id)
+        } else {
+            coursesSelected = coursesSelected.filter((item) => item != element.id);
+        }
+        applyFilters();
+    }
+
+    function majorFilterChanged(element) {
+        isSameMajor = element.checked;
+        applyFilters();
+    }
+
+    function availabilityFilterChanged(element) {
+        isAvailability = element.checked;
+        applyFilters();
+    }
+
+    function updateAvailabilityThreshold(element) {
+        availabilityThreshold = element.value;
+        applyFilters();
+    }
+
+    function applyFilters() {
+        const allBuddies = document.getElementsByClassName("buddy-card");
+        for (let i = 0; i < allBuddies.length; i++) {
+            allBuddies[i].classList.remove("hidden-buddy-card");
+            let courses = Array.from(allBuddies[i].getElementsByClassName("course-chip"));
+            courses = courses.map((course) => course.id);
+            
+            let isEnabled = true;
+            for (let j = 0; j < coursesSelected.length; j++) {
+                if (!courses.includes(coursesSelected[j])) {
+                    isEnabled = false;
+                }
+            }
+
+            const major = Array.from(allBuddies[i].getElementsByClassName("buddy-subheader-text"))[0].id;
+            if (isSameMajor && major !== userMajor) {
+                isEnabled = false;
+            }
+
+            const availStr = Array.from(allBuddies[i].getElementsByClassName("availability-data"))[0].id;
+            const avail = availStr === "No Availability Data" ? -1 : parseInt(availStr.split("%")[0]);
+            if (isAvailability && avail < availabilityThreshold) {
+                isEnabled = false;
+            }
+            
+            if (!isEnabled) {
+                allBuddies[i].classList.add("hidden-buddy-card");
+            }
+        }
+    }
+</script>
+    <!-- <div class="filter-container">
+        <span class="filter-header">
+            My Buddies
+        </span>
+        <div class="filter-section">
+            <span class="filter-subheader">
+                Course
+            </span>
+            <div class="filter-checkbox-list">
+                {% for course in userCourses %}
+                    <div class="form-check course">
+                        <input
+                            class="form-check-input"
+                            type="checkbox"
+                            value="" 
+                            id="{{course.mnemonic}} {{course.number}}" 
+                            onclick='courseFilterChanged(this)'
+                            >
+                        <label
+                            class="form-check-label filter-course-label"
+                            for="{{course.mnemonic}} {{course.number}}"
+                            id="{{course.mnemonic}} {{course.number}}"
+                            >
+                            {{course.mnemonic}}&nbsp;{{course.number}}
+                        </label>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="filter-section">
+            <span class="filter-subheader">
+                Major
+            </span>
+            <div class="filter-checkbox-list">
+                <div class="form-check course">
+                    <input
+                        class="form-check-input"
+                        type="checkbox"
+                        value=""
+                        id="major"
+                        onclick='majorFilterChanged(this)'
+                        >
+                    <label
+                        class="form-check-label"
+                        for="major"
+                        >
+                        Same Major as Me
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="filter-section">
+            <span class="filter-subheader">
+                Availability
+            </span>
+            <div class="filter-checkbox-list">
+                <div class="form-check course">
+                    <input class="form-check-input availability-checkbox" type="checkbox" value="" id="avail">
+                    <label class="form-check-label" for="">
+                        <div class="availability-label">
+                            <input type="number" class="availability-input" value="50">
+                            <span>Percent Match Or Higher</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+-->
+<div class="root-container">
+    <div class="buddy-container">
+        <div class="buddy-header-container">
+            <span class="filter-header">My Buddies</span>
+            </div>
+        {% for buddy in requester_confirmed_buddies_list %}
+            <div class="buddy-card">
+                <div class="buddy-header-container">
+                    <a href="" onclick=displayBuddy()>{{buddy.requestee.name}}</a>
+                    <div class="buddy-course-container">
+                        {% for course in all_courses %}
+                            {% if course.student == buddy.requestee %}
+                                {% for user_course in current_user_courses %}
+                                    {% if course.mnemonic == user_course.mnemonic and course.number == user_course.number %}
+                                        <div class="course-chip">
+                                            {{course.mnemonic}}&nbsp;{{course.number}}
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %} 
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
         {% endfor %}
-    </table>
-    {% else %}
-    <p>No accounts are available.</p>
-    {% endif %}
-    {% endblock %}
+        {% for buddy in requestee_confirmed_buddies_list %}
+            <div class="buddy-card">
+                <div class="buddy-header-container">
+                    <a href="">{{buddy.requester.name}}</a>
+                    <div class="buddy-course-container">
+                        {% for course in all_courses %}
+                                {% if course.student == buddy.requester %} 
+                                    {% for user_course in current_user_courses %}
+                                        {% if course.mnemonic == user_course.mnemonic and course.number == user_course.number %}
+                                            <div class="course-chip">
+                                                {{course.mnemonic}}&nbsp;{{course.number}}
+                                                </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %} 
+                        {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        <div class="buddy-header-container">
+            <span class="buddy-header-text">Pending Your Approval</span>
+        </div>
+        {% for buddy in requestee_buddies_list %}
+        <div class="buddy-card">
+            <div class="buddy-header-container">
+                <a href="">{{buddy.requester.name}}</a>
+                <div class="buddy-course-container">
+                    {% for course in all_courses %}
+                            {% if course.student == buddy.requester %}
+                                {% for user_course in current_user_courses %}
+                                    {% if course.mnemonic == user_course.mnemonic and course.number == user_course.number %}
+                                        <div class="course-chip">
+                                            {{course.mnemonic}}&nbsp;{{course.number}}
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %} 
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        <div class="buddy-header-container">
+            <span class="buddy-header-text">Pending Their Approval</span>
+        </div>   
+        {% for buddy in requester_buddies_list %}
+        <div class="buddy-card">
+            <div class="buddy-header-container">
+                <a href="">{{buddy.requestee.name}}</a>
+                <div class="buddy-course-container">
+                    {% for course in all_courses %}
+                            {% if course.student == buddy.requestee %}
+                                {% for user_course in current_user_courses %}
+                                    {% if course.mnemonic == user_course.mnemonic and course.number == user_course.number %}
+                                        <div class="course-chip">
+                                            {{course.mnemonic}}&nbsp;{{course.number}}
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %} 
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="separator"></div>
+        {% for buddy in requester_confirmed_buddies_list %}
+        <div id="{{ buddy.requestee.name }}" class="filter-container">
+            <div class="buddy-header-container">
+                <span class="filter-header">{{buddy.requestee.name}}</span>
+            </div>
+            <div class="buddy-subheader-container">
+                <span
+                    id="{{ buddy.requestee.major }}"
+                    class="buddy-subheader-text"
+                    >
+                    {% if buddy.numBuddies == 1 %}
+                        {{buddy.requestee.major}} Major&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp; Study Buddy &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;79% Availability Match</span>
+                    {% else %}
+                        {{buddy.requestee.major}} Major&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;{{buddy.numBuddies}} Study Buddies &nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;79% Availability Match</span>
+                    {% endif %}
+            </div>
+            <div class="buddy-body-container">
+                <span class="buddy-body-text">{{buddy.requestee.bio}}</span>
+            </div>
+            <div class="buddy-header-container">
+                <span class="buddy-header-text">Shared Courses</span>
+            </div>
+            <div class="buddy-subheader-container">
+                {% for course in all_courses %}
+                            {% if course.student == buddy.requestee %}
+                                {% for user_course in current_user_courses %}
+                                    {% if course.mnemonic == user_course.mnemonic and course.number == user_course.number %}
+                                        <div class="course-chip">
+                                            {{course.mnemonic}}&nbsp;{{course.number}}
+                                            </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %} 
+                    {% endfor %}
+            </div>
+            <div class="buddy-header-container">
+                <span class="buddy-header-text">Contact Info</span>
+            </div>
+            <div class="buddy-footer-container">
+                <a href=""><span class="availability-link">Compare Availability</span></a>
+            </div>
+            <div class="buddy-footer-container">
+                <button type="button" class="btn btn-primary">Send Buddy Request</button>
+                <button type="button" class="btn btn-primary">Send Buddy Request</button>
+            </div>
+        </div>
+        {% endfor %}
+</div>
+
+{% endblock %}
