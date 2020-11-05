@@ -4,7 +4,21 @@ from django.urls import reverse
 
 # Create your tests here.
 
-from .models import userAccount, Course
+from .models import userAccount, Course, buddies
+
+def create_user(user, name, major, bio):
+    """
+    creates a userAccount with the given user and name arguments
+    """
+    return userAccount.objects.create(user=user,name=name, major=major, bio=bio)
+
+
+def create_course(student, mnemonic, number):
+    """
+    creates a userAccount with the given user and name arguments
+    """
+    return Course.objects.create(student=student,mnemonic=mnemonic, number=number)
+
 
 class userAccountModelTest(TestCase):
     def test_self_str(self):
@@ -25,19 +39,6 @@ class userAccountHasAccountViewTests(TestCase):
         url = reverse('userAccount:has_account')
         response = self.client.get(url)
         self.assertRedirects(response, '/profile/')
-
-def create_user(user, name, major, bio):
-    """
-    creates a userAccount with the given user and name arguments
-    """
-    return userAccount.objects.create(user=user,name=name, major=major, bio=bio)
-
-
-def create_course(student, mnemonic, number):
-    """
-    creates a userAccount with the given user and name arguments
-    """
-    return Course.objects.create(student=student,mnemonic=mnemonic, number=number)
 
 class userAccountViewAccountViewTests(TestCase):
     def test_view_account(self):
@@ -164,20 +165,3 @@ class userAccountCourseManipulationTests(TestCase):
         self.client.post(url,data)
         response = self.client.get(reverse('userAccount:view_account'))
         self.assertContains(response,"Incorrect course format")
-
-    def test_delete_course(self):
-        """
-        deleting a course removes it from account view
-        """
-        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
-        login = self.client.force_login(testUser)
-        testAccount = userAccount.objects.all()[0]
-        create_course(student=testAccount, mnemonic="CS", number="3240")
-        pk = Course.objects.all()[0].pk
-        url = reverse('userAccount:delete_course')
-        data = {'delete_item' : [pk]}
-        self.client.post(url,data)
-        url = reverse('userAccount:view_account')
-        response = self.client.get(url, follow=True)
-        self.assertContains(response, "No courses have been added to the account")
