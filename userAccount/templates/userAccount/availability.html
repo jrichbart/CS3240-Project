@@ -6,6 +6,8 @@
 {% block content %}
   <head>
     <link rel="stylesheet" type="text/css" href="{% static 'userAccount/availability.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+
     <title>Availability</title>
     <script>
         const numRows = 7 * 16;
@@ -127,6 +129,7 @@
         }
     </script>
   </head>
+  <body>
   <div>
     <div class="root-container">
         <div class="main-container">
@@ -174,4 +177,5 @@
         </div>
     </div>
 </div>
+</body>
 {% endblock %}

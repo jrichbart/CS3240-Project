@@ -1,5 +1,11 @@
 {% extends "login/base.html" %}
+{% load static %}
 {% block content %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+  <title>Add a Class</title>
+</head>
+<body>
       <br>
       <div class="container">
 
@@ -16,5 +22,5 @@
         </form>
       </div>
       <br>
-
+    </body>
 {% endblock %}

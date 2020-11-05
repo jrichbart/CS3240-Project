@@ -1,5 +1,12 @@
 {% extends "login/base.html" %}
+{% load static %}
+
 {% block content %}
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+  <title>Account Information</title>
+</head>
+<body>
       <br>
       <div class="container">
         {% if messages %}
@@ -14,7 +21,7 @@
         <form action="{% url 'userAccount:save' %}" id = "account_form" method="post">
             {% csrf_token %}
           <div class="form-group">
-            <label for="acc_name">Name</label>
+            <label for="acc_name">Preferred Name</label>
             <input type="text" class="form-control" id="acc_name" value="{{ acc_name }}" name = "acc_name">
             <label for="acc_major">Major</label>
             <input type="text" class="form-control" id="acc_major" value="{{ acc_major }}" name = "acc_major">
@@ -32,7 +39,7 @@
           {% for course in courses %}
           <form action="{% url 'userAccount:delete_course' %}" id = "delete_course" method="post">
             {% csrf_token %}
-            <li class="list-group-item"><span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span><button type="submit" name="delete_item" value="{{ course.pk }}">X</button></li>
+            <li class="list-group-item"><button type="submit" class="btn btn-danger" name="delete_item" value="{{ course.pk }}">Delete</button> <span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
           </form>
           {% endfor %}
         </div>
@@ -40,12 +47,13 @@
         <div class="container">
         <p>No courses have been added to the account.</p>
       </div>
-      <br>
       {% endif %}
+      <br>
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
-        <a class="btn btn-success" href="{% url 'userAccount:has_availability' %}">Set My Availability</a>
+        <a class="btn btn-primary" href="{% url 'userAccount:view_buddies' %}">View Buddies</a>
+        <a class="btn btn-success" href="{% url 'userAccount:contact_info' %}">Continue to Edit Contact Info</a>
       </div>
       </div>
-      <br>
+    </body>
 {% endblock %}
