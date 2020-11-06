@@ -90,3 +90,26 @@ def get_availability_string(u, a):
             if u[i] == a[i]:
                 matches += 1
         return str(int(100 * matches / len(u))) + "% Availability Match"
+
+def view_send_request(request, username):
+    requestee = userAccount.objects.get(username=username)
+    context = {"requestee": requestee}
+    return render(request, 'find/buddyRequest.html', context)
+
+def send_buddy_request(request, username):
+    try:
+        current_user = userAccount.objects.get(user=request.user)
+        requestee = userAccount.objects.get(username=username)
+
+        request_message = request.POST.get("request_message_input")
+
+        new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message)
+        new_buddy_request.save()
+        return render(request, 'find/index.html', context)
+    except:
+        if(request.user.is_authenticated):
+            messages.add_message(request, messages.ERROR, "Error: Unable to process buddy request")
+            return render(request, 'find/index.html', context)
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
+            return HttpResponseRedirect(reverse('login:login'))
