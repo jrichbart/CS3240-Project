@@ -51,6 +51,8 @@ class Course(models.Model):
         if isinstance(other, Course):
             return (self.number == other.number and self.mnemonic == other.mnemonic)
         return False
+    def __hash__(self):
+        return super().__hash__()
 
 class Availability(models.Model):
     student = models.ForeignKey(userAccount, related_name='availability', on_delete=models.CASCADE, unique=True)
