@@ -195,7 +195,7 @@ def buddy_select(request, buddy_name):
         buddies = currentUser.getBuddies()
         shared_courses = currentUser.getSharedCourses(buddy_account)
         context = {
-            'acc_name' : currentUser.name,
+            'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
