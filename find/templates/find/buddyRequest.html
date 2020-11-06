@@ -4,7 +4,7 @@
       <div class="container">
 
         <h1>Send Buddy Request</h1>
-        <form id = "buddy_request" method="post">
+        <form action="{% url 'find:view_buddy_request' requestee_username %}" id = "buddy_request" method="post">
             {% csrf_token %}
           <div class="form-group">
             <label for="requestee">Send To:</label>
@@ -17,5 +17,3 @@
       </div>
       <br>
 {% endblock %}
-
-<!-- <form action="{% url 'find:send_buddy_request' requestee.username %}" id = "buddy_request" method="post"></form> -->

@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.models import User
-from userAccount.models import userAccount, Course, Availability
+from userAccount.models import userAccount, Course, Availability, buddies
 from django.urls import reverse
 
 def index(request):
@@ -92,9 +92,9 @@ def get_availability_string(u, a):
         return str(int(100 * matches / len(u))) + "% Availability Match"
 
 def view_send_request(request, user):
-    print(user)
     template = loader.get_template('find/buddyRequest.html')
-    requestee = userAccount.objects.get(user=user)
+    buddy = User.objects.get(username=user)
+    requestee = userAccount.objects.get(user=buddy) 
     context = {
         "requestee_name": requestee.first_name + " " + requestee.last_name,
         "requestee_username": requestee.user
@@ -102,21 +102,14 @@ def view_send_request(request, user):
     return HttpResponse(template.render(context, request))
 
 
-def send_buddy_request(request, username):
+def send_buddy_request(request, user):
     print("hello")
-    try:
-        current_user = userAccount.objects.get(user=request.user)
-        requestee = userAccount.objects.get(username=username)
+    current_user = userAccount.objects.get(user=request.user)
+    buddy = User.objects.get(username=user)
+    requestee = userAccount.objects.get(user=buddy) 
 
-        request_message = request.POST.get("request_message_input")
+    request_message = request.POST.get("request_message_input")
 
-        new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message)
-        new_buddy_request.save()
-        return render(request, 'find/index.html', context)
-    except:
-        if(request.user.is_authenticated):
-            messages.add_message(request, messages.ERROR, "Error: Unable to process buddy request")
-            return render(request, 'find/index.html', context)
-        else:
-            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-            return HttpResponseRedirect(reverse('login:login'))
+    new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message, approved=False, denied_message="", denied=False)
+    new_buddy_request.save()
+    return render(request, 'find/index.html')
