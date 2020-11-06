@@ -103,7 +103,6 @@ def view_send_request(request, user):
 
 
 def send_buddy_request(request, user):
-    print("hello")
     current_user = userAccount.objects.get(user=request.user)
     buddy = User.objects.get(username=user)
     requestee = userAccount.objects.get(user=buddy) 
@@ -112,4 +111,4 @@ def send_buddy_request(request, user):
 
     new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message, approved=False, denied_message="", denied=False)
     new_buddy_request.save()
-    return render(request, 'find/index.html')
+    return index(request)
