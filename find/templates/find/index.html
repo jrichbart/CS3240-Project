@@ -1,9 +1,14 @@
 {% extends "login/base.html" %}
 {% load static %}
+{% load socialaccount %}
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'find/find.css' %}">
 <script>
+    foo("{{ user }}")
+    function foo(user){
+        console.log(user.username)
+    }
     let coursesSelected = [];
     let isSameMajor = false;
     let isAvailability = false;
@@ -195,7 +200,7 @@
                 {% else %}
                     <div></div>
                 {% endif %}
-                <button type="button" class="btn btn-primary">Send Buddy Request</button>
+                <a href="{% url 'find:view_send_request' buddy.user.user %}"><button type="button" class="btn btn-primary">Send Buddy Request</button></a>
             </div>
         </div>
         {% endfor %}

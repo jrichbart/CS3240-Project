@@ -91,12 +91,19 @@ def get_availability_string(u, a):
                 matches += 1
         return str(int(100 * matches / len(u))) + "% Availability Match"
 
-def view_send_request(request, username):
-    requestee = userAccount.objects.get(username=username)
-    context = {"requestee": requestee}
-    return render(request, 'find/buddyRequest.html', context)
+def view_send_request(request, user):
+    print(user)
+    template = loader.get_template('find/buddyRequest.html')
+    requestee = userAccount.objects.get(user=user)
+    context = {
+        "requestee_name": requestee.first_name + " " + requestee.last_name,
+        "requestee_username": requestee.user
+    }
+    return HttpResponse(template.render(context, request))
+
 
 def send_buddy_request(request, username):
+    print("hello")
     try:
         current_user = userAccount.objects.get(user=request.user)
         requestee = userAccount.objects.get(username=username)
