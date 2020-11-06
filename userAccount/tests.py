@@ -303,3 +303,22 @@ class userAccountContactSaveViewTests(TestCase):
         self.client.post(url,data)
         response = self.client.get(reverse('userAccount:contact_info'))
         self.assertContains(response, "discordTest")
+
+class userAccountApproveBuddyViewTests(TestCase):
+    def test_approve_buddy(self):
+        """
+        approving a buddy moves updates view
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequester = User.objects.create_user(username="testRequester", password="testPassword")
+        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
+        testRequesterAccount = create_user(user=testRequester, name="John Doe", major="CS", bio="sample")
+        create_buddy(testRequesterAccount, testAccount, False)
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:approve_buddy')
+        pk = buddies.objects.all()[0].pk
+        data = {'approve_item' : [pk]}
+        self.client.post(url,data)
+        url = reverse('userAccount:view_buddies')
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, "no requests pending")
