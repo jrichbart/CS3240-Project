@@ -6,4 +6,5 @@ app_name = 'find'
 
 urlpatterns = [
     path('', views.index, name='index'),
+    
 ]
