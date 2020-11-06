@@ -1,14 +1,19 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.models import User
 from userAccount.models import userAccount, Course, Availability
+from django.urls import reverse
 
 def index(request):
 
     template = loader.get_template('find/index.html')
 
-    user_account = userAccount.objects.get(user=request.user)
+    if (userAccount.objects.filter(user=request.user).count() > 0):
+        user_account = userAccount.objects.get(user=request.user)
+    else:
+        return HttpResponseRedirect(reverse('login:home'))
+
     user_courses = Course.objects.filter(student=user_account)
     user_courses = sorted(user_courses, key=lambda c: c.mnemonic)
     try:

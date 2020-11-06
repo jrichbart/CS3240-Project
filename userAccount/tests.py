@@ -9,10 +9,10 @@ from .models import userAccount, Course
 class userAccountModelTest(TestCase):
     def test_self_str(self):
         """
-        userAccount returns name property
+        userAccount returns name
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
-        testAccount = userAccount(user=testUser, name="John Doe")
+        testAccount = userAccount(user=testUser, first_name="John", last_name="Doe")
         self.assertEqual(str(testAccount),"John Doe")
 
 class userAccountHasAccountViewTests(TestCase):
@@ -26,11 +26,11 @@ class userAccountHasAccountViewTests(TestCase):
         response = self.client.get(url)
         self.assertRedirects(response, '/profile/')
 
-def create_user(user, name, major, bio):
+def create_user(user, first_name, last_name, major, bio):
     """
     creates a userAccount with the given user and name arguments
     """
-    return userAccount.objects.create(user=user,name=name, major=major, bio=bio)
+    return userAccount.objects.create(user=user,first_name=first_name, last_name=last_name, major=major, bio=bio)
 
 
 def create_course(student, mnemonic, number):
@@ -45,11 +45,12 @@ class userAccountViewAccountViewTests(TestCase):
         user's name shows up in response when account is already set up
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:has_account')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "John Doe")
+        self.assertContains(response, "John")
+        self.assertContains(response, "Doe")
 
 class userAccountSaveViewTests(TestCase):
     def test_name_update_account(self):
@@ -57,12 +58,13 @@ class userAccountSaveViewTests(TestCase):
         name updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save')
         data = {
-            'acc_name' : 'James',
-            'acc_major' : '',
+            'acc_first_name' : 'James',
+            'acc_last_name' : 'Doe',
+            'acc_major' : 'Psychology',
             'acc_bio' : '',
         }
         self.client.post(url,data)
@@ -74,11 +76,12 @@ class userAccountSaveViewTests(TestCase):
         major updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save')
         data = {
-            'acc_name' : 'John Doe',
+            'acc_first_name' : 'John',
+            'acc_last_name' : 'Doe',
             'acc_major' : 'Psychology',
             'acc_bio' : '',
         }
@@ -91,12 +94,13 @@ class userAccountSaveViewTests(TestCase):
         bio updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save')
         data = {
-            'acc_name' : 'John Doe',
-            'acc_major' : '',
+            'acc_first_name' : 'John',
+            'acc_last_name' : 'Doe',
+            'acc_major' : 'Psychology',
             'acc_bio' : 'Hello I am John Doe',
         }
         self.client.post(url,data)
@@ -109,7 +113,7 @@ class CourseModelTests(TestCase):
         Course returns mnemonicnumber for name
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
-        testAccount = userAccount(user=testUser, name="John Doe")
+        testAccount = userAccount(user=testUser, first_name="John", last_name="Doe")
         testCourse = Course(student=testAccount, mnemonic="CS", number = "3240")
         self.assertEqual(str(testCourse),"CS3240 for John Doe")
 
@@ -119,7 +123,7 @@ class userAccountCourseViewTests(TestCase):
         account view should show list of courses associated with student acount
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         testAccount = userAccount.objects.all()[0]
         create_course(student=testAccount, mnemonic="CS", number="3240")
@@ -132,7 +136,7 @@ class userAccountCourseViewTests(TestCase):
         account view with no courses should say so
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:view_account')
         response = self.client.get(url, follow=True)
@@ -144,7 +148,7 @@ class userAccountCourseManipulationTests(TestCase):
         adding a course appends to account profile view
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:add_course')
         data = {'course_mnemonic' : 'CS', 'course_number' : '1010'}
@@ -157,7 +161,7 @@ class userAccountCourseManipulationTests(TestCase):
         adding an invalid course will report an error message
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         url = reverse('userAccount:add_course')
         data = {'course_mnemonic' : 'CSFFF', 'course_number' : '2'}
@@ -170,7 +174,7 @@ class userAccountCourseManipulationTests(TestCase):
         deleting a course removes it from account view
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
         login = self.client.force_login(testUser)
         testAccount = userAccount.objects.all()[0]
         create_course(student=testAccount, mnemonic="CS", number="3240")

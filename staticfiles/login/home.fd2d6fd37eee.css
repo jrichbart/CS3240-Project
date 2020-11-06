@@ -1,0 +1,52 @@
+.root-container {
+    width: 100%;
+    height: calc(100vh - 56px);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding-top: 0.5vw;
+    padding-left: 3vw;
+    background-image: url("/static/accounts/images/home-background.3875c9f73fa0.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+.study-together {
+    font-family: 'Avenir';
+    font-weight: 600;
+    font-size: 6vw;
+    -webkit-user-select: none;
+}
+
+.homepage-card {
+    width: calc(30vh + 200px);
+    height: calc(20vh + 200px);
+    background-color: white;
+    margin-top: 11vh;
+    border-radius: 30px;
+    -webkit-box-shadow: 7px 4px 23px -7px rgba(84,84,84,0.31); 
+    box-shadow: 7px 4px 23px -7px rgba(84,84,84,0.31);
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    padding-left: calc(2vh + 10px);
+    padding-right: calc(2vh + 10px);
+    padding-top: calc(2vh + 25px);
+    padding-bottom: calc(2vh + 25px);
+}
+
+.homepage-card-body {
+    font-family: 'Avenir';
+    font-weight: 600;
+    font-size: calc(3vh + 15px);
+    line-height: 110%;
+    text-align: center;
+}
+
+.profile-button {
+    height: 70px;
+    width: 270px;
+    font-size: 23px;
+}
