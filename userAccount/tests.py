@@ -254,16 +254,52 @@ class userAccountCourseManipulationTests(TestCase):
         response = self.client.get(url, follow=True)
         self.assertContains(response, "No courses have been added to the account")
 
-class userAccountBuddyViewTests(TestCase):
-    def test_add_course(self):
+class userAccountContactSaveViewTests(TestCase):
+    def test_computing_id_update(self):
         """
-        adding a course appends to account profile view
+        computing id updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, name="John Doe", major='', bio='')
+        uA = create_user(user=testUser, name="John Doe", major='', bio='')
         login = self.client.force_login(testUser)
-        url = reverse('userAccount:add_course')
-        data = {'course_mnemonic' : 'CS', 'course_number' : '1010'}
+        url = reverse('userAccount:save_contact')
+        data = {
+            'computing_id' : 'abc1def',
+            'phone_number' : '',
+            'discord_name' : '',
+        }
         self.client.post(url,data)
-        response = self.client.get(reverse('userAccount:view_account'))
-        self.assertContains(response,"CS1010")
+        response = self.client.get(reverse('userAccount:contact_info'))
+        self.assertContains(response, "abc1def")
+    def test_phone_number_update(self):
+        """
+        phone number updates when saved
+        """
+        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
+        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:save_contact')
+        data = {
+            'computing_id' : '',
+            'phone_number' : '1111111111',
+            'discord_name' : '',
+        }
+        self.client.post(url,data)
+        response = self.client.get(reverse('userAccount:contact_info'))
+        self.assertContains(response, "1111111111")
+    def test_discord_name_update(self):
+        """
+        discord name updates when saved
+        """
+        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
+        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:save_contact')
+        data = {
+            'computing_id' : '',
+            'phone_number' : '',
+            'discord_name' : 'discordTest',
+        }
+        self.client.post(url,data)
+        response = self.client.get(reverse('userAccount:contact_info'))
+        self.assertContains(response, "discordTest")
