@@ -38,7 +38,7 @@ class userAccountModelTest(TestCase):
         userAccount getCourses return list of associated courses
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
         create_course(testAccount, "CS", "3240")
         create_course(testAccount, "MATH", "1010")
         self.assertEqual(list(testAccount.getCourses()), list(Course.objects.all()))
@@ -49,8 +49,8 @@ class userAccountModelTest(TestCase):
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
-        testRequesteeAccount = create_user(user=testRequestee, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
         create_buddy(testAccount,testRequesteeAccount, True)
         self.assertEqual(testAccount.getBuddies()["accepted"][0],testRequesteeAccount)
     
@@ -60,8 +60,8 @@ class userAccountModelTest(TestCase):
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
-        testRequesteeAccount = create_user(user=testRequestee, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
         create_buddy(testAccount,testRequesteeAccount, False)
         self.assertEqual(testAccount.getBuddies()["pendingTheirApproval"][0],testRequesteeAccount)
 
@@ -71,8 +71,8 @@ class userAccountModelTest(TestCase):
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testRequester = User.objects.create_user(username="testRequester", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
-        testRequesterAccount = create_user(user=testRequester, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesterAccount = create_user(user=testRequester, first_name="John", last_name="Doe", major="CS", bio="sample")
         create_buddy(testRequesterAccount,testAccount, False)
         self.assertEqual(testAccount.getBuddies()["pendingYourApproval"][0],testRequesterAccount)
     
@@ -82,8 +82,8 @@ class userAccountModelTest(TestCase):
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testUser2 = User.objects.create_user(username="testUser2", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
-        testAccount2 = create_user(user=testUser2, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testAccount2 = create_user(user=testUser2, first_name="John", last_name="Doe", major="CS", bio="sample")
         shared = create_course(testAccount, "CS", "3240")
         create_course(testAccount, "MATH", "1010")
         create_course(testAccount2, "CS", "3240")
@@ -195,8 +195,8 @@ class CourseModelTests(TestCase):
     def test_equals(self):
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testUser2 = User.objects.create_user(username="testUser2", password="testPassword")
-        testAccount = create_user(user=testUser, name="John", major="CS", bio="sample")
-        testAccount2 = create_user(user=testUser2, name="Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="James", last_name="", major="CS", bio="sample")
+        testAccount2 = create_user(user=testUser2, first_name="John", last_name="", major="CS", bio="sample")
         course1 = create_course(testAccount, "CS", "3240")
         course2 = create_course(testAccount2, "CS", "3240")
         self.assertEqual(course1, course2)
@@ -277,7 +277,7 @@ class userAccountContactSaveViewTests(TestCase):
         computing id updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        uA = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save_contact')
         data = {
@@ -293,7 +293,7 @@ class userAccountContactSaveViewTests(TestCase):
         phone number updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        uA = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save_contact')
         data = {
@@ -309,7 +309,7 @@ class userAccountContactSaveViewTests(TestCase):
         discord name updates when saved
         """
         testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        uA = create_user(user=testUser, name="John Doe", major='', bio='')
+        uA = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
         login = self.client.force_login(testUser)
         url = reverse('userAccount:save_contact')
         data = {
@@ -328,8 +328,8 @@ class userAccountApproveBuddyViewTests(TestCase):
         """
         testUser = User.objects.create_user(username="testUser", password="testPassword")
         testRequester = User.objects.create_user(username="testRequester", password="testPassword")
-        testAccount = create_user(user=testUser, name="John Doe", major="CS", bio="sample")
-        testRequesterAccount = create_user(user=testRequester, name="John Doe", major="CS", bio="sample")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesterAccount = create_user(user=testRequester, first_name="John", last_name="Doe", major="CS", bio="sample")
         create_buddy(testRequesterAccount, testAccount, False)
         login = self.client.force_login(testUser)
         url = reverse('userAccount:approve_buddy')

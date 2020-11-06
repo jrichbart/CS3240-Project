@@ -174,7 +174,7 @@ def view_buddies(request):
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
         context = {
-            'acc_name' : currentUser.name,
+            'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
