@@ -8,16 +8,19 @@ class userAccount(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
     major = models.CharField(max_length=50)
     bio = models.TextField()
     computing_id = models.CharField(max_length=7)
     phone_number = models.CharField(max_length=15)
     discord_name = models.CharField(max_length=50)
     def __str__(self):
-        return self.name
+        return self.first_name + " " + self.last_name
+
     def getCourses(self):
         return self.courses.all()
+
     def getBuddies(self):
         requested = self.requester.all()
         requestee = self.requestee.all()
@@ -34,7 +37,8 @@ class userAccount(models.Model):
                 accepted.append(buddy.requester)
             else:
                 pendingYourApproval.append(buddy.requester)
-        return {"accepted" : accepted, "pendingYourApproval" : pendingYourApproval, "pendingTheirApproval" : pendingTheirApproval}   
+        return {"accepted" : accepted, "pendingYourApproval" : pendingYourApproval, "pendingTheirApproval" : pendingTheirApproval}
+        
     def getSharedCourses(self, user2):
         self_courses = self.courses.all()
         user2_courses = user2.courses.all()

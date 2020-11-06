@@ -14,8 +14,7 @@ def has_availability(request):
             return HttpResponseRedirect(reverse('userAccount:view_availability'))
         else:
             user = request.user
-            name = ""
-            new_account = userAccount(user=user, name=name)
+            new_account = userAccount(user=user, first_name="", last_name="")
             new_account.save()
             return HttpResponseRedirect(reverse('userAccount:view_availability'))
     else:
@@ -78,8 +77,7 @@ def has_account(request):
             return HttpResponseRedirect(reverse('userAccount:view_account'))
         else:
             user = request.user
-            name = ""
-            new_account = userAccount(user=user, name=name)
+            new_account = userAccount(user=user, first_name="", last_name="")
             new_account.save()
             return HttpResponseRedirect(reverse('userAccount:view_account'))
     else:
@@ -92,7 +90,8 @@ def view_account(request):
         currentUser = userAccount.objects.get(user=request.user)
         courses = currentUser.getCourses()
         context = {
-            'acc_name' : currentUser.name,
+            'acc_first_name' : currentUser.first_name,
+            'acc_last_name' : currentUser.last_name,
             'acc_major' : currentUser.major,
             'acc_bio' : currentUser.bio,
             'email' : currentUser.user.email,
@@ -106,10 +105,12 @@ def view_account(request):
 def save(request):
     try:
         currentUser = userAccount.objects.get(user=request.user)
-        acc_name = request.POST.get("acc_name")
+        acc_first_name = request.POST.get("acc_first_name")
+        acc_last_name = request.POST.get("acc_last_name")
         acc_major = request.POST.get("acc_major")
         acc_bio = request.POST.get("acc_bio")
-        currentUser.name = acc_name
+        currentUser.first_name = acc_first_name
+        currentUser.last_name = acc_last_name
         currentUser.major = acc_major
         currentUser.bio = acc_bio
         currentUser.save()
@@ -173,7 +174,7 @@ def view_buddies(request):
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
         context = {
-            'acc_name' : currentUser.name,
+            'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
