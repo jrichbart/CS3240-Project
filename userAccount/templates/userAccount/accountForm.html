@@ -2,60 +2,302 @@
 {% load static %}
 
 {% block content %}
-<head>
-  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
-  <title>Account Information</title>
-</head>
-<body>
-      <br>
-      <div class="container">
-        {% if messages %}
-        <div class="messages">
-          {% for message in messages %}
-            <p>{{ message }}</p>
-          {% endfor %}
-        </div>
-        {% endif %}
-        <h2>Edit account information below and click Update to update</h2>
-        <h3>Email: {{ email }}</h3>
-        <form action="{% url 'userAccount:save' %}" id = "account_form" method="post">
-            {% csrf_token %}
-          <div class="form-group">
-            <label for="acc_first_name">First Name</label>
-            <input type="text" class="form-control" id="acc_first_name" value="{{ acc_first_name }}" name = "acc_first_name">
-            <label for="acc_last_name">Last Name</label>
-            <input type="text" class="form-control" id="acc_last_name" value="{{ acc_last_name }}" name = "acc_last_name">
-            <label for="acc_major">Major</label>
-            <input type="text" class="form-control" id="acc_major" value="{{ acc_major }}" name = "acc_major">
-            <label for="acc_bio">Bio</label>
-            <input type="text" class="form-control" id="acc_bio" value="{{ acc_bio }}" name = "acc_bio">
+<link rel="stylesheet" type="text/css" href="{% static 'userAccount/profile.css' %}">
+<link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script>
+
+  let courses = "{{ courses }}".split(",");
+  let courseDataEncoded = "{{ course_data }}";
+  let courseData;
+  let selectedCourseMnemonic = "";
+  let selectedCourseNumber = "";
+  let coursesAdded = [];
+  let coursesRemoved = [];
+  let isSaved;
+
+  const coursesChipHead = '<div class="course-chip">';
+  const coursesChipMid = "<img class=\"x-icon\" src=\"{% static 'userAccount/images/clear-24px.svg' %}\" onclick=\"removeCourse('"
+  const coursesChipTail = "')\"></div>";
+
+  window.addEventListener('load', function() {
+    displayCourses();
+
+    selectedCourseMnemonic = "CS";
+    selectedCourseNumber = "1110";
+    selectedCourseApplyStyles();
+    setIsSaved(true);
+
+    courseData = decodeCourseData(courseDataEncoded);
+    displaySelectableCourses();
+
+    const majorSelect = document.getElementById('acc_major');
+    const courseMnemonicSelect = document.getElementById('selected-course-mnemonic');
+    const courseDescSelect = document.getElementById("selected-course-desc");
+    const accountForm = document.getElementById("account_form");
+    majorSelect.value = "{{ acc_major }}";
+    courseDescSelect.value = "1110 - Introduction to Programming";
+
+    courseMnemonicSelect.addEventListener('change', function() {
+      selectedCourseMnemonic = courseMnemonicSelect.value;
+      displaySelectableCourses();
+      selectedCourseApplyStyles();
+    });
+
+    courseDescSelect.addEventListener('change', function() {
+      selectedCourseNumber = courseDescSelect.value.slice(0, 4);
+      selectedCourseApplyStyles();
+    });
+
+    accountForm.addEventListener('change', function() {
+      setIsSaved(false);
+    });
+
+    toastr.options = {
+      "positionClass": "toast-bottom-right",
+      "timeOut": "2000",
+    }
+
+    // window.addEventListener('beforeunload', function(e){
+    //   e.preventDefault();
+    //   if (!isSaved) {
+    //     return 'You have unsaved changes';
+    //   } else {
+    //     return;
+    //   }
+    // });
+  });
+
+  function setIsSaved(saved) {
+    isSaved = saved;
+    document.getElementById("save-button").disabled = isSaved;
+  }
+
+  function decodeCourseData(data) {
+    return JSON.parse(data.replaceAll("&#x27;", "\""));
+  }
+
+  function displaySelectableCourses() {
+    let s = '';
+    for (let i in courseData[selectedCourseMnemonic]) {
+      s += '<option value="' + courseData[selectedCourseMnemonic][i] + '">' + courseData[selectedCourseMnemonic][i] + '</option>';
+    }
+    console.log(s);
+    document.getElementById('selected-course-desc').innerHTML = s;
+  }
+
+  function displayCourses() {
+    let s = '';
+    for (let course in courses) {
+      s += coursesChipHead + courses[course] + coursesChipMid + courses[course] + coursesChipTail;
+    }
+    document.getElementById('courses-display').innerHTML = s;
+  }
+
+  function removeCourse(course) {
+    courses = courses.filter((item) => item != course);
+    if (coursesAdded.includes(course)) {
+        coursesAdded = coursesAdded.filter((item) => item != course);
+    } else {
+      coursesRemoved.push(course);
+    }
+    setIsSaved(false);
+    displayCourses();
+    selectedCourseApplyStyles();
+  }
+
+  function addCourse() {
+    document.getElementById("courses-dispaly-container").classList.remove("courses-display-error");
+    document.getElementById("courses-error-message").classList.remove("show-error");
+
+    let course = selectedCourseMnemonic;
+    course += ' ' + selectedCourseNumber;
+    if (!courses.includes(course)) {
+      if (coursesRemoved.includes(course)) {
+        coursesRemoved = coursesRemoved.filter((item) => item != course);
+      } else {
+        coursesAdded.push(course);
+      }
+      courses.push(course);
+      displayCourses();
+      setIsSaved(false);
+    }
+    selectedCourseApplyStyles();
+  }
+
+  function selectedCourseApplyStyles() {
+    const iconElement = document.getElementById('add-icon');
+    if (courses.includes(selectedCourseMnemonic + ' ' + selectedCourseNumber)) {
+      iconElement.classList.add("add-icon-disabled");
+    } else {
+      iconElement.classList.remove("add-icon-disabled");
+    }
+  }
+
+  function saveAndContinue() {
+    let isValid = true;
+
+    const accountForm = document.getElementById("account_form");
+    if (accountForm.checkValidity() === false) {
+      accountForm.classList.add('was-validated');
+      isValid = false;
+    }
+    if (courses.length === 0) {
+      document.getElementById("courses-dispaly-container").classList.add("courses-display-error");
+      document.getElementById("courses-error-message").classList.add("show-error");
+      isValid = false;
+    }
+
+    if (!isValid) return;
+
+    const body = {
+      "acc_first_name": document.getElementById("acc_first_name").value,
+      "acc_last_name": document.getElementById("acc_last_name").value,
+      "acc_major": document.getElementById("acc_major").value,
+      "acc_bio": document.getElementById("acc_bio").value,
+      "acc_courses_added": coursesAdded,
+      "acc_courses_removed": coursesRemoved,
+      'csrfmiddlewaretoken': '{{ csrf_token }}'
+    }
+    $.post("{% url 'userAccount:save' %}", body, function(data, status) {
+      if (status === "success") {
+        toastr.success("Profile updated");
+        setIsSaved(true);
+        accountForm.classList.remove('was-validated');
+      } else {
+        toastr.error("An error occurred. Profile could not be updated.");
+      }
+    });
+  }
+
+</script>
+
+<div class="root-container">
+  <div class="form-header">
+    <span class="form-header-text">
+      My Profile
+    </span>
+  </div>
+  <div class="form-body">
+    <div class="form-body-left">
+    <form
+      action="{% url 'userAccount:save' %}"
+      id="account_form"
+      method="post"
+      class="needs-validation"
+      novalidate
+      >
+      {% csrf_token %}
+      <div class="form-group row">
+        <label for="acc_first_name" class="col-sm-3 col-form-label">First Name</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" id="acc_first_name" value="{{ acc_first_name }}" name = "acc_first_name" required>
+          <div class="invalid-feedback">
+            First name is required.
           </div>
-          <button type="submit" class="btn btn-primary">Update</button>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="acc_last_name" class="col-sm-3 col-form-label">Last Name</label>
+        <div class="col-sm-9">
+          <input type="text" class="form-control" id="acc_last_name" value="{{ acc_last_name }}" name = "acc_last_name" required>
+          <div class="invalid-feedback">
+            Last name is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group row">
+        <label for="acc_major" class="col-sm-3 col-form-label">Major</label>
+        <div class="col-sm-9">
+          <select
+            id="acc_major"
+            class="form-control"
+            required
+            >
+            <option value=""></option>
+            {% for major in major_options %}
+              <option value="{{ major }}">{{ major }}</option>
+            {% endfor %}
+          </select>
+          <div class="invalid-feedback">
+            Major is required.
+          </div>
+        </div>
+      </div>
+      <div class="form-group row form-textarea">
+        <label for="acc_bio" class="col-sm-3 col-form-label">Bio</label>
+        <div class="col-sm-9">
+          <textarea
+            class="form-control bio-textarea"
+            id="acc_bio"
+            name = "acc_bio"
+            placeholder="Tell us a bit about yourself. Where do you need the most help? What can you help others with?"
+            required
+            >{{ acc_bio }}</textarea>
+          <div class="invalid-feedback">
+            Bio is required.
+          </div>
+        </div>
+      </div>
+    </form>
+    </div>
+    <div class="form-body-right">
+      <div class="courses-header">
+        <span class="courses-header-text">Courses</span>
+      </div>
+      <div class="courses-select-form-container">
+        <form class="courses-select-form">
+          <div class="form-row courses-select-row">
+            <div class="col-xl-3 col-lg-4">
+              <select
+                id="selected-course-mnemonic"
+                class="form-control"
+                >
+                {% for mnemonic in course_data.keys %}
+                  <option value="{{ mnemonic }}">{{ mnemonic }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-xl-8 col-lg-7">
+              <select
+                id="selected-course-desc"
+                class="form-control"
+                >
+              </select>
+            </div>
+            <div class="col col-sm-1 add-icon-container">
+              <img onclick="addCourse()" id="add-icon" class="add-icon" src="{% static 'userAccount/images/add_circle-24px.svg' %}">
+            </div>
+          </div>
         </form>
       </div>
-      <br>
-
-      <div class="container">
-        {% if courses %}
-        <div class="list-group">
-          {% for course in courses %}
-          <form action="{% url 'userAccount:delete_course' %}" id = "delete_course" method="post">
-            {% csrf_token %}
-            <li class="list-group-item"><button type="submit" class="btn btn-danger" name="delete_item" value="{{ course.pk }}">Delete</button> <span class="badge badge-primary">{{ course.mnemonic }}{{ course.number }}</span></li>
-          </form>
-          {% endfor %}
+      <div id="courses-dispaly-container" class="courses-dispaly-container">
+        <div id="courses-display" class="courses-display">
+          <!-- Will be filled by displayCourses() -->
         </div>
-        {% else %}
-        <div class="container">
-        <p>No courses have been added to the account.</p>
       </div>
-      {% endif %}
-      <br>
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <a class="btn btn-primary" href="{% url 'userAccount:course_form' %}">Add a class</a>
-        <a class="btn btn-primary" href="{% url 'userAccount:view_buddies' %}">View Buddies</a>
-        <a class="btn btn-success" href="{% url 'userAccount:contact_info' %}">Continue to Edit Contact Info</a>
+      <div id="courses-error-message" class="courses-error-message">
+        <span>You must add at least one course.</span>
       </div>
-      </div>
-    </body>
+    </div>
+  </div>
+  <div class="form-footer">
+    <button
+      id="save-button"
+      class="btn btn-success save-button"
+      onclick="saveAndContinue()"
+      >
+      Save
+    </button>
+    <a
+      href="{% url 'userAccount:contact_info' %}"
+    >
+      <button
+        class="btn btn-outline-primary"
+        >
+        Continue to Edit Contact Info
+      </button>
+    </a>
+  </div>
+</div>
 {% endblock %}

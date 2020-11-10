@@ -125,7 +125,7 @@
         function postAvailability() {
             const new_cal = encodeCalendar();
             let post_data = { 'calendar': new_cal, 'csrfmiddlewaretoken': '{{ csrf_token }}' };
-            $.post("{% url 'userAccount:save_availability' %}", post_data, function(data, status) { console.log(status)});
+            $.post("{% url 'userAccount:save_availability' %}", post_data, function(data, status) { console.log(status) });
         }
     </script>
   </head>
