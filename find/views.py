@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.models import User
-from userAccount.models import userAccount, Course, Availability
+from userAccount.models import userAccount, Course, Availability, buddies
 from django.urls import reverse
 
 def index(request):
@@ -90,3 +90,25 @@ def get_availability_string(u, a):
             if u[i] == a[i]:
                 matches += 1
         return str(int(100 * matches / len(u))) + "% Availability Match"
+
+def view_send_request(request, user):
+    template = loader.get_template('find/buddyRequest.html')
+    buddy = User.objects.get(username=user)
+    requestee = userAccount.objects.get(user=buddy) 
+    context = {
+        "requestee_name": requestee.first_name + " " + requestee.last_name,
+        "requestee_username": requestee.user
+    }
+    return HttpResponse(template.render(context, request))
+
+
+def send_buddy_request(request, user):
+    current_user = userAccount.objects.get(user=request.user)
+    buddy = User.objects.get(username=user)
+    requestee = userAccount.objects.get(user=buddy) 
+
+    request_message = request.POST.get("request_message_input")
+
+    new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message, approved=False, denied_message="", denied=False)
+    new_buddy_request.save()
+    return HttpResponseRedirect(reverse('find:index'))
