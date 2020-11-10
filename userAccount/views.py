@@ -31,7 +31,7 @@ def view_availability(request):
         if availability.count() > 0:
             calendar = availability[0].calendar
 
-        template = loader.get_template('userAccount/availability.html')
+        template = loader.get_template('userAccount/availabilityForm.html')
         days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         times = []
         for i in range(8, 12):
@@ -134,8 +134,16 @@ def save(request):
                     course.delete()
         
         for add_course in courses_to_add:
-            new_course = Course(student=currentUser, mnemonic=add_course.split(" ")[0], number=add_course.split(" ")[1])
-            new_course.save()
+
+            # Will quietly ignore any duplicate courses
+            is_duplicate = False
+            for course in all_courses:
+                if course.mnemonic == add_course.split(" ")[0] and course.number == add_course.split(" ")[1]:
+                    is_duplicate = True
+
+            if not is_duplicate:
+                new_course = Course(student=currentUser, mnemonic=add_course.split(" ")[0], number=add_course.split(" ")[1])
+                new_course.save()
 
         messages.add_message(request, messages.SUCCESS, "Account information successfully updated")
         return HttpResponseRedirect(reverse('userAccount:contact_info'))
@@ -251,7 +259,7 @@ def approve_buddy(request):
 
 def contact_info(request):
     if(request.user.is_authenticated):
-        template = loader.get_template('userAccount/contactInfoForm.html')
+        template = loader.get_template('userAccount/contactInfo.html')
         currentUser = userAccount.objects.get(user=request.user)
         context = {
             'computing_id' : currentUser.computing_id,

@@ -25,7 +25,7 @@
     height: 50%;
     width: 100%;
     display: flex;
-    min-height: 300px;
+    min-height: 320px;
 }
 
 .form-body-left {
@@ -49,7 +49,7 @@
 .form-footer {
     padding: 10px;
     padding-left: 25px;
-    padding-right: 25px;
+    padding-right: 28px;
     display: flex;
     justify-content: flex-end;
 }
@@ -131,6 +131,7 @@ form {
 
 .courses-display {
     height: 100%;
+    min-height: 220px;
     display: flex;
     align-items: flex-start;
     justify-content: flex-start;

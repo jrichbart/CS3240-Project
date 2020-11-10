@@ -1,0 +1,190 @@
+{% extends "login/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'userAccount/contactInfo.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+
+    let isSaved = true;
+
+    window.addEventListener('load', function() {
+
+        if (window.innerWidth < 1300) {
+            document.getElementById("right-header").classList.add("right-side-header-text-xs");
+        } else if (window.innerWidth < 1515) {
+            document.getElementById("right-header").classList.add("right-side-header-text-small");
+        }
+
+        setIsSaved(true);
+        toastr.options = {
+            "positionClass": "toast-bottom-right",
+            "timeOut": "2000",
+        }
+
+        const form = document.getElementById("contact_form");
+        form.addEventListener('change', function() {
+            setIsSaved(false);
+        });
+    });
+
+    // Reload if page is loaded from bfcache
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload() 
+        }
+    };
+
+    window.onresize = function() {
+        if (window.innerWidth < 1300) {
+            document.getElementById("right-header").classList.add("right-side-header-text-xs");
+            document.getElementById("right-header").classList.remove("right-side-header-text-small");
+        } else if (window.innerWidth < 1515) {
+            document.getElementById("right-header").classList.add("right-side-header-text-small");
+            document.getElementById("right-header").classList.remove("right-side-header-text-xs");
+        } else {
+            document.getElementById("right-header").classList.remove("right-side-header-text-xs");
+            document.getElementById("right-header").classList.remove("right-side-header-text-small");
+        }
+    }
+
+    function setIsSaved(saved) {
+        isSaved = saved;
+        document.getElementById("save-button").disabled = isSaved;
+    }
+
+    function onContinue(linkId) {
+        if (!isSaved) {
+        swal({
+            title: "Are you sure you want to leave?",
+            text: "Your unsaved changes will be lost.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        })
+        .then((value) => {
+            if (value) {
+            document.getElementById(linkId).click();
+            }
+        });
+        } else {
+        document.getElementById(linkId).click();
+        }
+    }
+
+    function save() {
+        const form = document.getElementById("contact_form");
+        if (form.checkValidity() === false) {
+            form.classList.add('was-validated');
+            return;
+        }
+
+        const body = {
+            "computing_id": document.getElementById("computing_id").value,
+            "phone_number": document.getElementById("phone_number").value,
+            "discord_name": document.getElementById("discord_name").value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        }
+        $.post("{% url 'userAccount:save_contact' %}", body, function(data, status) {
+            if (status === "success") {
+                toastr.success("Contact info updated");
+                setIsSaved(true);
+                form.classList.remove('was-validated');
+            } else {
+                toastr.error("An error occurred. Contact info could not be updated.");
+            }
+        });
+    }
+</script>
+<div class="root-container">
+    <div class="form-header">
+        <span class="form-header-text">My Contact Info</span>
+    </div>
+    <div class="form-body">
+        <div class="form-body-left">
+            <form
+                action="{% url 'userAccount:save_contact' %}"
+                id = "contact_form"
+                class="needs-validation"
+                method="post"
+                >
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="computing_id" class="col-sm-5 col-form-label">
+                        Computing ID
+                    </label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="computing_id" value="{{ computing_id }}" name = "computing_id" required>
+                        <div class="invalid-feedback">
+                            Computing ID is required
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="phone_number" class="col-sm-5 col-form-label">
+                        Phone Number
+                    </label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="phone_number" value="{{ phone_number }}" name = "phone_number">
+                        <div class="invalid-feedback">
+                            Phone Number is required
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label for="discord_name" class="col-sm-5 col-form-label">
+                        Discord Username
+                    </label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="discord_name" value="{{ discord_name }}" name = "discord_name">
+                        <div class="invalid-feedback">
+                            Discord Username is required
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="form-body-right">
+            <div class="right-side-header">
+                <span id="right-header" class="right-side-header-text">Why do we need your contact info?</span>
+            </div>
+            <div class="right-side-body">
+                <span class="right-side-body-text">So that your buddies can contact you, of course! Don’t worry, this information will not be shared with anyone that you have not selected as a study buddy.</span>
+            </div>
+        </div>
+    </div>
+    <div class="form-footer">
+        <a
+            onclick="onContinue('hidden-link-profile')"
+            >
+            <button
+                class="btn btn-outline-primary"
+                >
+                Back to Edit Profile
+            </button>
+        </a>
+        <div>
+            <button
+            id="save-button"
+            class="btn btn-success save-button"
+            onclick="save()"
+            >
+            Save
+            </button>
+            <a
+            onclick="onContinue('hidden-link-avail')"
+            >
+                <button
+                    class="btn btn-outline-primary"
+                    >
+                    Continue to Edit Availability
+                </button>
+            </a>
+            <a id="hidden-link-profile" href="{% url 'userAccount:view_account' %}" style="display: none;"></a>
+            <a id="hidden-link-avail" href="{% url 'userAccount:has_availability' %}" style="display: none;"></a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -3,8 +3,9 @@
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'userAccount/profile.css' %}">
-<link href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
-<script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
 
   let courses = "{{ courses }}".split(",");
@@ -21,6 +22,7 @@
   const coursesChipTail = "')\"></div>";
 
   window.addEventListener('load', function() {
+    console.log('loaded');
     displayCourses();
 
     selectedCourseMnemonic = "CS";
@@ -57,16 +59,14 @@
       "positionClass": "toast-bottom-right",
       "timeOut": "2000",
     }
-
-    // window.addEventListener('beforeunload', function(e){
-    //   e.preventDefault();
-    //   if (!isSaved) {
-    //     return 'You have unsaved changes';
-    //   } else {
-    //     return;
-    //   }
-    // });
   });
+
+  // Reload if page is loaded from bfcache
+  window.onpageshow = function(event) {
+    if (event.persisted) {
+        window.location.reload() 
+    }
+  };
 
   function setIsSaved(saved) {
     isSaved = saved;
@@ -82,7 +82,6 @@
     for (let i in courseData[selectedCourseMnemonic]) {
       s += '<option value="' + courseData[selectedCourseMnemonic][i] + '">' + courseData[selectedCourseMnemonic][i] + '</option>';
     }
-    console.log(s);
     document.getElementById('selected-course-desc').innerHTML = s;
   }
 
@@ -134,7 +133,26 @@
     }
   }
 
-  function saveAndContinue() {
+  function onContinue() {
+    if (!isSaved) {
+      swal({
+        title: "Are you sure you want to leave?",
+        text: "Your unsaved changes will be lost.",
+        icon: "warning",
+        buttons: true,
+        dangerMode: true,
+      })
+      .then((value) => {
+        if (value) {
+          document.getElementById("hidden-link").click();
+        }
+      });
+    } else {
+      document.getElementById("hidden-link").click();
+    }
+  }
+
+  function save() {
     let isValid = true;
 
     const accountForm = document.getElementById("account_form");
@@ -285,12 +303,12 @@
     <button
       id="save-button"
       class="btn btn-success save-button"
-      onclick="saveAndContinue()"
+      onclick="save()"
       >
       Save
     </button>
     <a
-      href="{% url 'userAccount:contact_info' %}"
+      onclick="onContinue()"
     >
       <button
         class="btn btn-outline-primary"
@@ -298,6 +316,7 @@
         Continue to Edit Contact Info
       </button>
     </a>
+    <a id="hidden-link" href="{% url 'userAccount:contact_info' %}" style="display: none;"></a>
   </div>
 </div>
 {% endblock %}
