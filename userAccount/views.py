@@ -77,7 +77,7 @@ def has_account(request):
             return HttpResponseRedirect(reverse('userAccount:view_account'))
         else:
             user = request.user
-            new_account = userAccount(user=user, first_name="", last_name="")
+            new_account = userAccount(user=user, first_name=user.first_name, last_name=user.last_name)
             new_account.save()
             return HttpResponseRedirect(reverse('userAccount:view_account'))
     else:

@@ -8,8 +8,8 @@ class userAccount(models.Model):
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
     )
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50, blank=True)
+    last_name = models.CharField(max_length=50, blank=True)
     major = models.CharField(max_length=50)
     bio = models.TextField()
     computing_id = models.CharField(max_length=7)
