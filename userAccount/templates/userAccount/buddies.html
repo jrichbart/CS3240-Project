@@ -94,6 +94,10 @@
                     {% csrf_token %}
                   <button type="submit" class="btn btn-danger" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
                   </form>
+                  <form action="{% url 'userAccount:deny_buddy' %}" id = "deny_buddy" method="post">
+                    {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" name="deny_item" value="{{ selected_buddy.pk }}">Deny</button>
+                  </form>
                 {% elif selected_buddy in pending_their_approval %}
                 <h2>Contact Info  <img src="{% static 'userAccount/images/padlock.png' %}" align="right" style="height: 1em; width: 1em;"/></h2> 
                   <i style="color:gray;">Contact info will be available after the request is approved</i>

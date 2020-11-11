@@ -27,17 +27,22 @@ class userAccount(models.Model):
         accepted = []
         pendingYourApproval = []
         pendingTheirApproval = []
+        denied = []
         for buddy in requested:
             if buddy.approved:
                 accepted.append(buddy.requestee)
+            elif buddy.denied:
+                denied.append(buddy.requestee)
             else:
                 pendingTheirApproval.append(buddy.requestee)
         for buddy in requestee:
             if buddy.approved:
                 accepted.append(buddy.requester)
+            elif buddy.denied:
+                denied.append(buddy.requester)
             else:
                 pendingYourApproval.append(buddy.requester)
-        return {"accepted" : accepted, "pendingYourApproval" : pendingYourApproval, "pendingTheirApproval" : pendingTheirApproval}
+        return {"accepted" : accepted, "pendingYourApproval" : pendingYourApproval, "pendingTheirApproval" : pendingTheirApproval, "denied" : denied}
         
     def getSharedCourses(self, user2):
         self_courses = self.courses.all()

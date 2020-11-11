@@ -199,6 +199,7 @@ def buddy_select(request, buddy_name):
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
+            'denied_buddies' : buddies["denied"], 
             'selected_buddy' : buddy_account,
             'number_buddies' : study_buddy_list_length,
             'shared_courses' : shared_courses,
@@ -221,6 +222,24 @@ def approve_buddy(request):
     except:
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error approving request")
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
+            return HttpResponseRedirect(reverse('login:login'))
+
+def deny_buddy(request):
+    try:
+        buddy_pk = request.POST.getlist('deny_item')[0]
+        buddy_to_approve = userAccount.objects.get(pk=buddy_pk)
+        currentUser = userAccount.objects.get(user=request.user)
+        buddyObject = buddies.objects.get(requester=buddy_to_approve, requestee=currentUser)
+        buddyObject.denied = True
+        buddyObject.save()
+        messages.add_message(request, messages.SUCCESS, "Approval denied")
+        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+    except:
+        if(request.user.is_authenticated):
+            messages.add_message(request, messages.ERROR, "Error denying request")
             return HttpResponseRedirect(reverse('userAccount:view_buddies'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
