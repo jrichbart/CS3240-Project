@@ -4,7 +4,7 @@ from django.template import loader
 from django.contrib.auth.models import User
 from userAccount.models import userAccount, Course, Availability
 from django.urls import reverse
-from django.contrib import messages
+
 def index(request):
 
     template = loader.get_template('find/index.html')
