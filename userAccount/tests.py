@@ -339,3 +339,22 @@ class userAccountApproveBuddyViewTests(TestCase):
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
         self.assertContains(response, "no requests pending")
+
+class userAccountDenyBuddyViewTests(TestCase):
+    def test_deny_buddy(self):
+        """
+        denying a buddy moves updates view
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequester = User.objects.create_user(username="testRequester", password="testPassword")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesterAccount = create_user(user=testRequester, first_name="Mister", last_name="Meanie", major="CS", bio="sample")
+        create_buddy(testRequesterAccount, testAccount, False)
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:deny_buddy')
+        pk = buddies.objects.all()[0].pk
+        data = {'deny_item' : [pk]}
+        self.client.post(url,data)
+        url = reverse('userAccount:view_buddies')
+        response = self.client.get(url, follow=True)
+        self.assertContains(response, "no requests pending")
