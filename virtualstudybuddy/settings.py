@@ -114,7 +114,7 @@ AUTHENTICATION_BACKENDS = (
  'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-SITE_ID = 2
+SITE_ID = 4
 
 LOGIN_REDIRECT_URL = '/'
 
@@ -134,6 +134,34 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
+import requests
+import json
+
+def get():
+	url = 'https://api.devhub.virginia.edu/v1/courses'
+	data = requests.get(url).json()
+	return data
+
+
+def format(data, sem):
+    classes = data['class_schedules']['records']
+    courses = {}
+    for c in classes:
+        title = c[4].replace("'","")
+        formatted_course = c[1]+" - " + title
+        mnemonic = c[0]
+        semester = c[12]
+        if semester != sem:
+            continue
+        else:
+            if (mnemonic not in courses):
+                courses[mnemonic] = [formatted_course]
+            else:
+                if (formatted_course not in courses[mnemonic]):
+                    courses[mnemonic].append(formatted_course)
+    return courses
+
+UVA_COURSES = format(get(), '2020 Fall')
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/

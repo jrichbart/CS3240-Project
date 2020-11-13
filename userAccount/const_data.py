@@ -1,3 +1,4 @@
+from django.conf import settings
 
 major_options = [
     'Aerospace Engineering',
@@ -75,55 +76,4 @@ major_options = [
     'Youth & Social Innovation (BSEd)'
 ]
 
-course_data = {
-    "CS": [
-        "1010 - Introduction to Information Technology",
-        "1110 - Introduction to Programming",
-        "1111 - Introduction to Programming",
-        "1112 - Introduction to Programming",
-        "2102 - Discrete Mathematics",
-        "2110 - Software Development Methods",
-        "2150 - Program and Data Representation",
-        "2910 - CS Education Practicum",
-        "3102 - Theory of Computation",
-        "3205 - HCI in Software Development",
-        "3240 - Advanced Software Development Techniques",
-        "3250 - Software Testing" 
-    ],
-    "APMA": [
-        "1110 - Single Variable Calculus II",
-        "2120 - Multivariable Calculus",
-        "2130 - Ordinary Differential Equations",
-        "2501 - Special Topics in Applied Mathematics",
-        "3080 - Linear Algebra",
-        "3100 - Probability",
-        "3110 - Applied Statistics and Probability",
-        "3120 - Statistics",
-        "3140 - Applied Partial Differential Equations"
-    ],
-    "BME": [
-        "2000 - Biomedical Engineering Design and Discovery",
-        "2101 - Physiology I for Engineers",
-        "2102 - Physiology II",
-        "2104 - Cell and Molecular Biology for Engineers",
-        "2220 - Biomechanics",
-        "2315 - Computational Biomedical Engineering",
-        "3030 - Design and Innovation in Medicine",
-        "3090 - Biomedical Engineering Integrated Design and Experimental Analysis (IDEAS) Laboratory II",
-        "3240 - Biotransport",
-        "3310 - Biomedical Systems Analysis and Design",
-        "3636 - Neural Network Models of Cognition and Brain Computation"
-    ],
-    "STS": [
-        "1500 - Science, Technology, and Contemporary Issues",
-        "2050 - Introduction to Sustainable Energy Systems", 
-        "2070 - Utopias and the Technological Society",
-        "2500 - Science and Technology in Social and Global Context",
-        "2620 - Science and Technology Public Policy",
-        "2840 - Entrepreneurial Finance",
-        "3020 - Science and Technology Policy for Interns",
-        "3500 - Advanced Topics in Technology and Society",
-        "4500 - STS and Engineering Practice",
-        "4600 - The Engineer, Ethics, and Professional Responsibility"
-    ]
-}
+course_data = settings.UVA_COURSES
