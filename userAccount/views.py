@@ -5,6 +5,8 @@ from .models import userAccount, Course, Availability, buddies
 from django.template import loader
 from django.contrib import messages
 from django.contrib.auth.models import User
+from .const_data import major_options, course_data
+import json
 
 # Create your views here.
 
@@ -29,7 +31,7 @@ def view_availability(request):
         if availability.count() > 0:
             calendar = availability[0].calendar
 
-        template = loader.get_template('userAccount/availability.html')
+        template = loader.get_template('userAccount/availabilityForm.html')
         days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
         times = []
         for i in range(8, 12):
@@ -89,13 +91,20 @@ def view_account(request):
         template = loader.get_template('userAccount/accountForm.html')
         currentUser = userAccount.objects.get(user=request.user)
         courses = currentUser.getCourses()
+
+        courses_as_str = []
+        for course in courses:
+            courses_as_str.append(course.mnemonic + " " + course.number)
+
         context = {
             'acc_first_name' : currentUser.first_name,
             'acc_last_name' : currentUser.last_name,
             'acc_major' : currentUser.major,
             'acc_bio' : currentUser.bio,
             'email' : currentUser.user.email,
-            'courses' : courses,
+            'courses' : ','.join(courses_as_str),
+            'major_options' : major_options,
+            'course_data' : course_data
         }
         return HttpResponse(template.render(context,request))
     else:
@@ -114,55 +123,33 @@ def save(request):
         currentUser.major = acc_major
         currentUser.bio = acc_bio
         currentUser.save()
+
+        courses_to_add = request.POST.getlist("acc_courses_added[]")
+        courses_to_remove = request.POST.getlist("acc_courses_removed[]")
+        all_courses = Course.objects.filter(student=currentUser)
+
+        for delete_course in courses_to_remove:
+            for course in all_courses:
+                if course.mnemonic == delete_course.split(" ")[0] and course.number == delete_course.split(" ")[1]:
+                    course.delete()
+        
+        for add_course in courses_to_add:
+
+            # Will quietly ignore any duplicate courses
+            is_duplicate = False
+            for course in all_courses:
+                if course.mnemonic == add_course.split(" ")[0] and course.number == add_course.split(" ")[1]:
+                    is_duplicate = True
+
+            if not is_duplicate:
+                new_course = Course(student=currentUser, mnemonic=add_course.split(" ")[0], number=add_course.split(" ")[1])
+                new_course.save()
+
         messages.add_message(request, messages.SUCCESS, "Account information successfully updated")
-        return HttpResponseRedirect(reverse('userAccount:view_account'))
+        return HttpResponseRedirect(reverse('userAccount:contact_info'))
     except:
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error updating account information")
-            return HttpResponseRedirect(reverse('userAccount:view_account'))
-        else:
-            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-            return HttpResponseRedirect(reverse('login:login'))
-
-def course_form(request):
-    if(request.user.is_authenticated):
-        template = loader.get_template('userAccount/courseForm.html')
-        context = {}
-        return HttpResponse(template.render(context,request))
-    else:
-        messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-        return HttpResponseRedirect(reverse('login:login'))
-
-def add_course(request):
-    try:
-        student = userAccount.objects.get(user=request.user)
-        mnemonic = request.POST.get("course_mnemonic")
-        number = request.POST.get("course_number")
-        if (len(number)!=4 or len(mnemonic) < 2 or len(mnemonic) > 4):
-            messages.add_message(request, messages.ERROR, "Incorrect course format")
-            return HttpResponseRedirect(reverse('userAccount:view_account'))
-
-        newCourse = Course(student=student, mnemonic=mnemonic, number=number)
-        newCourse.save()
-        messages.add_message(request, messages.SUCCESS, "Course added successfully")
-        return HttpResponseRedirect(reverse('userAccount:view_account'))
-    except:
-        if(request.user.is_authenticated):
-            messages.add_message(request, messages.SUCCESS, "Course was not added")
-            return HttpResponseRedirect(reverse('userAccount:view_account'))
-        else:
-            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-            return HttpResponseRedirect(reverse('login:login'))
-
-def delete_course(request):
-    try:
-        course_to_delete = request.POST.getlist('delete_item')
-        Course.objects.get(pk=course_to_delete[0]).delete()
-        messages.add_message(request, messages.SUCCESS, "Course deleted successfully")
-        return HttpResponseRedirect(reverse('userAccount:view_account'))
-    except:
-        if(request.user.is_authenticated):
-            messages.add_message(request, messages.ERROR, "Error deleting course")
             return HttpResponseRedirect(reverse('userAccount:view_account'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
@@ -194,8 +181,22 @@ def buddy_select(request, buddy_name):
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
         shared_courses = currentUser.getSharedCourses(buddy_account)
+
+        # Availability
+        days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        times = []
+        for i in range(8, 12):
+            times.append(str(i) + ":00 AM")
+        times.append("12:00 PM")
+        for i in range(1,12):
+            times.append(str(i) + ":00 PM")
+
+        user_availability = Availability.objects.get(student=currentUser).calendar
+        buddy_availability = Availability.objects.get(student=buddy_account).calendar
+        
         context = {
             'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
+            'current_user': currentUser,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
@@ -203,6 +204,12 @@ def buddy_select(request, buddy_name):
             'selected_buddy' : buddy_account,
             'number_buddies' : study_buddy_list_length,
             'shared_courses' : shared_courses,
+            'user_availability': user_availability,
+            'buddy_availability': buddy_availability,
+            'range16': range(16),
+            'range7': range(7),
+            'days': days,
+            'times': times,
         }
         return HttpResponse(template.render(context,request))
     else:
@@ -247,7 +254,7 @@ def deny_buddy(request):
 
 def contact_info(request):
     if(request.user.is_authenticated):
-        template = loader.get_template('userAccount/contactInfoForm.html')
+        template = loader.get_template('userAccount/contactInfo.html')
         currentUser = userAccount.objects.get(user=request.user)
         context = {
             'computing_id' : currentUser.computing_id,

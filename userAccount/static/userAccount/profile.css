@@ -1,0 +1,231 @@
+.root-container {
+    width: 100%;
+    height: calc(100vh - 56px);
+    padding: 50px;
+    padding-left: calc(20vw - 100px);
+    padding-right: calc(20vw - 100px);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-header {
+    height: 100px;;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+}
+
+.stepper-node {
+    height: 35px;
+    width: 35px;
+    border-radius: 35px;
+    background-color: rgb(136, 136, 136);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.selected {
+    background-color: #007bff;
+}
+
+.selected-text {
+    color: #007bff !important;
+}
+
+.stepper-node-text {
+    margin-left: 1px;
+}
+
+.stepper-separator {
+    width: 240px;
+    height: 2px;
+    background-color: lightgrey;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.stepper-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.stepper-text {
+    margin-top: 5px;
+    font-size: 15px;
+    color: rgb(104, 104, 104);
+}
+
+.form-body {
+    height: 50%;
+    width: 100%;
+    display: flex;
+    min-height: 320px;
+    padding-top: 20px;
+}
+
+.form-body-left {
+    height: 100%;
+    width: 100%;
+    padding: 30px;
+}
+
+.form-body-right {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.form-footer {
+    padding: 10px;
+    padding-left: 25px;
+    padding-right: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-button {
+    margin-right: 20px;
+}
+
+textarea {
+    min-height: 100% !important;
+    max-height: 30vh !important;
+}
+
+form {
+    height: 100%;
+}
+
+.form-textarea {
+    height: calc(100% - 150px);
+}
+
+.form-control {
+    border: 1px solid rgb(167, 167, 167);
+}
+
+.courses-header {
+    height: 60px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding-top: 10px;
+}
+
+.courses-header-text {
+    font-family: "Avenir";
+    font-weight: 600;
+    font-size: 28px;
+    color: rgb(61, 61, 61);
+}
+
+.courses-select-form-container {
+    width: 100%;
+    margin-top: 9px;
+}
+
+.courses-select-form {
+    width: 100% !important;
+}
+
+.courses-select-row {
+    width: 100%;
+}
+
+.add-icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.add-icon {
+    filter: invert(37%) sepia(38%) saturate(6927%) hue-rotate(199deg) brightness(101%) contrast(106%);
+    cursor: pointer;
+}
+
+.add-icon-disabled {
+    filter: invert(81%) sepia(9%) saturate(22%) hue-rotate(346deg) brightness(92%) contrast(93%);
+    cursor: auto;
+}
+
+.courses-dispaly-container {
+    height: calc(100% - 146px);
+    width: 100%;
+    margin-top: 20px;
+    overflow: auto;
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 10px;
+}
+
+.courses-display {
+    height: 100%;
+    min-height: 220px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    align-content: flex-start;
+    flex-wrap: wrap;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.course-chip {
+    background-color: #2b496e;
+    color: white;
+    font-weight: 600;
+    font-size: 1em;
+    padding-left: 25px;
+    padding-right: 15px;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    border-radius: 20px;
+    margin-right: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.x-icon {
+    margin-left: 10px;
+    filter: invert(70%) sepia(86%) saturate(0%) hue-rotate(186deg) brightness(111%) contrast(97%);
+    height: 20px;
+}
+
+.courses-display-error {
+    border: 1px solid red;
+}
+
+.courses-error-message {
+    width: 100%;
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    margin-left: 5px;
+    margin-top: 5px;
+    color: red;
+    font-size: 13px;
+}
+
+.show-error {
+    display: flex !important;
+}
