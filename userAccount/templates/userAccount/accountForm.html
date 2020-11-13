@@ -8,6 +8,8 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
 
+  let isLoaded = false;
+
   let courses = "{{ courses }}".split(",");
   let courseDataEncoded = "{{ course_data }}";
   let courseData;
@@ -22,7 +24,7 @@
   const coursesChipTail = "')\"></div>";
 
   window.addEventListener('load', function() {
-    console.log('loaded');
+    isLoaded = true;
     displayCourses();
 
     selectedCourseMnemonic = "CS";
@@ -63,7 +65,7 @@
 
   // Reload if page is loaded from bfcache
   window.onpageshow = function(event) {
-    if (event.persisted) {
+    if (event.persisted && isLoaded) {
         window.location.reload() 
     }
   };
@@ -133,7 +135,7 @@
     }
   }
 
-  function onContinue() {
+  function onContinue(link) {
     if (!isSaved) {
       swal({
         title: "Are you sure you want to leave?",
@@ -144,15 +146,15 @@
       })
       .then((value) => {
         if (value) {
-          document.getElementById("hidden-link").click();
+          document.getElementById(link).click();
         }
       });
     } else {
-      document.getElementById("hidden-link").click();
+      document.getElementById(link).click();
     }
   }
 
-  function save() {
+  function save(continueLink) {
     let isValid = true;
 
     const accountForm = document.getElementById("account_form");
@@ -178,7 +180,10 @@
       'csrfmiddlewaretoken': '{{ csrf_token }}'
     }
     $.post("{% url 'userAccount:save' %}", body, function(data, status) {
-      if (status === "success") {
+      if (continueLink && status === "success") {
+        setIsSaved(true);
+        onContinue(continueLink);
+      } else if (status === "success") {
         toastr.success("Profile updated");
         setIsSaved(true);
         accountForm.classList.remove('was-validated');
@@ -192,9 +197,22 @@
 
 <div class="root-container">
   <div class="form-header">
-    <span class="form-header-text">
-      My Profile
-    </span>
+    <div class="stepper">
+      <div class="stepper-container">
+          <div class="stepper-node selected"><span class="stepper-node-text">1</span></div>
+          <span class="stepper-text selected-text">Profile</span>
+      </div>
+      <div class="stepper-separator"></div>
+      <div class="stepper-container" onclick="onContinue('hidden-link')">
+          <div class="stepper-node"><span class="stepper-node-text">2</span></div>
+          <span class="stepper-text">Contact Info</span>
+      </div>
+      <div class="stepper-separator"></div>
+      <div class="stepper-container" onclick="onContinue('hidden-link-avail')">
+          <div class="stepper-node"><span class="stepper-node-text">3</span> </div>
+          <span class="stepper-text">Availability</span>
+      </div>
+  </div>
   </div>
   <div class="form-body">
     <div class="form-body-left">
@@ -308,14 +326,15 @@
       Save
     </button>
     <a
-      onclick="onContinue()"
+      onclick="save('hidden-link')"
     >
       <button
         class="btn btn-outline-primary"
         >
-        Continue to Edit Contact Info
+        Save and Continue
       </button>
     </a>
+    <a id="hidden-link-avail" href="{% url 'userAccount:has_availability' %}" style="display: none;"></a>
     <a id="hidden-link" href="{% url 'userAccount:contact_info' %}" style="display: none;"></a>
   </div>
 </div>

@@ -8,16 +8,12 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
 
+    let isLoaded = false;
+
     let isSaved = true;
 
     window.addEventListener('load', function() {
-
-        if (window.innerWidth < 1300) {
-            document.getElementById("right-header").classList.add("right-side-header-text-xs");
-        } else if (window.innerWidth < 1515) {
-            document.getElementById("right-header").classList.add("right-side-header-text-small");
-        }
-
+        isLoaded = true;
         setIsSaved(true);
         toastr.options = {
             "positionClass": "toast-bottom-right",
@@ -32,23 +28,10 @@
 
     // Reload if page is loaded from bfcache
     window.onpageshow = function(event) {
-        if (event.persisted) {
+        if (event.persisted && isLoaded) {
             window.location.reload() 
         }
     };
-
-    window.onresize = function() {
-        if (window.innerWidth < 1300) {
-            document.getElementById("right-header").classList.add("right-side-header-text-xs");
-            document.getElementById("right-header").classList.remove("right-side-header-text-small");
-        } else if (window.innerWidth < 1515) {
-            document.getElementById("right-header").classList.add("right-side-header-text-small");
-            document.getElementById("right-header").classList.remove("right-side-header-text-xs");
-        } else {
-            document.getElementById("right-header").classList.remove("right-side-header-text-xs");
-            document.getElementById("right-header").classList.remove("right-side-header-text-small");
-        }
-    }
 
     function setIsSaved(saved) {
         isSaved = saved;
@@ -57,24 +40,24 @@
 
     function onContinue(linkId) {
         if (!isSaved) {
-        swal({
-            title: "Are you sure you want to leave?",
-            text: "Your unsaved changes will be lost.",
-            icon: "warning",
-            buttons: true,
-            dangerMode: true,
-        })
-        .then((value) => {
-            if (value) {
-            document.getElementById(linkId).click();
-            }
-        });
+            swal({
+                title: "Are you sure you want to leave?",
+                text: "Your unsaved changes will be lost.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((value) => {
+                if (value) {
+                document.getElementById(linkId).click();
+                }
+            });
         } else {
-        document.getElementById(linkId).click();
+            document.getElementById(linkId).click();
         }
     }
 
-    function save() {
+    function save(continueLink) {
         const form = document.getElementById("contact_form");
         if (form.checkValidity() === false) {
             form.classList.add('was-validated');
@@ -88,7 +71,10 @@
             'csrfmiddlewaretoken': '{{ csrf_token }}'
         }
         $.post("{% url 'userAccount:save_contact' %}", body, function(data, status) {
-            if (status === "success") {
+            if (continueLink && status === "success") {
+                setIsSaved(true);
+                onContinue(continueLink);
+            } else if (status === "success") {
                 toastr.success("Contact info updated");
                 setIsSaved(true);
                 form.classList.remove('was-validated');
@@ -100,7 +86,22 @@
 </script>
 <div class="root-container">
     <div class="form-header">
-        <span class="form-header-text">My Contact Info</span>
+        <div class="stepper">
+            <div class="stepper-container" onclick="onContinue('hidden-link-profile')">
+                <div class="stepper-node"><span class="stepper-node-text">1</span></div>
+                <span class="stepper-text">Profile</span>
+            </div>
+            <div class="stepper-separator"></div>
+            <div class="stepper-container">
+                <div class="stepper-node selected"><span class="stepper-node-text">2</span></div>
+                <span class="stepper-text selected-text">Contact Info</span>
+            </div>
+            <div class="stepper-separator"></div>
+            <div class="stepper-container" onclick="onContinue('hidden-link-avail')">
+                <div class="stepper-node"><span class="stepper-node-text">3</span> </div>
+                <span class="stepper-text">Availability</span>
+            </div>
+        </div>
     </div>
     <div class="form-body">
         <div class="form-body-left">
@@ -151,7 +152,7 @@
                 <span id="right-header" class="right-side-header-text">Why do we need your contact info?</span>
             </div>
             <div class="right-side-body">
-                <span class="right-side-body-text">So that your buddies can contact you, of course! Don’t worry, this information will not be shared with anyone that you have not selected as a study buddy.</span>
+                <span class="right-side-body-text"><em>So that your buddies can contact you, of course! Don’t worry, this information will not be shared with anyone that you have not selected as a study buddy.</em></span>
             </div>
         </div>
     </div>
@@ -162,24 +163,24 @@
             <button
                 class="btn btn-outline-primary"
                 >
-                Back to Edit Profile
+                Back
             </button>
         </a>
         <div>
             <button
             id="save-button"
             class="btn btn-success save-button"
-            onclick="save()"
+            onclick="save(null)"
             >
             Save
             </button>
             <a
-            onclick="onContinue('hidden-link-avail')"
+            onclick="save('hidden-link-avail')"
             >
                 <button
                     class="btn btn-outline-primary"
                     >
-                    Continue to Edit Availability
+                    Save and Continue
                 </button>
             </a>
             <a id="hidden-link-profile" href="{% url 'userAccount:view_account' %}" style="display: none;"></a>

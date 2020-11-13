@@ -9,63 +9,10 @@
 }
 
 .form-header {
-    height: 100px;;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-.stepper {
+    height: 100px;
     display: flex;
     align-items: center;
-}
-
-.stepper-node {
-    height: 35px;
-    width: 35px;
-    border-radius: 35px;
-    background-color: rgb(136, 136, 136);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 600;
-}
-
-.stepper-node-text {
-    margin-left: 1px;
-}
-
-.stepper-separator {
-    width: 240px;
-    height: 2px;
-    background-color: lightgrey;
-    margin-left: 20px;
-    margin-right: 20px;
-}
-
-.selected {
-    background-color: #007bff;
-}
-
-.selected-text {
-    color: #007bff !important;
-}
-
-.stepper-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-.stepper-text {
-    margin-top: 5px;
-    font-size: 15px;
-    color: rgb(104, 104, 104);
+    justify-content: flex-start;
 }
 
 .form-header-text {
@@ -89,6 +36,29 @@
     padding-right: 50px;
 }
 
+.send-to-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.send-to-text {
+    font-weight: 600;
+}
+
+.form-textarea {
+    min-height: calc(100% - 50px) !important;
+}
+
+form {
+    height: 100%;
+}
+
+textarea {
+    min-height: 100% !important;
+    max-height: 45vh !important;
+}
+
 .form-body-right {
     height: 100%;
     width: 100%;
@@ -98,14 +68,6 @@
     justify-content: flex-start;
     padding-left: 50px;
     padding-right: 30px;
-}
-
-.form-footer {
-    padding: 10px;
-    padding-left: 28px;
-    padding-right: 28px;
-    display: flex;
-    justify-content: space-between;
 }
 
 .right-side-header {
@@ -135,6 +97,14 @@
     color: rgb(107, 107, 107);
 }
 
+.form-footer {
+    padding: 10px;
+    padding-left: 28px;
+    padding-right: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
 .save-button {
-    margin-right: 20px;
+    margin-left: 20px;
 }

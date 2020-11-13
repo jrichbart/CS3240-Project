@@ -12,27 +12,74 @@
 .form-header {
     height: 100px;;
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
 }
 
-.form-header-text {
-    font-size: 80px;
-    font-family: "Avenir";
+.stepper {
+    display: flex;
+    align-items: center;
+}
+
+.stepper-node {
+    height: 35px;
+    width: 35px;
+    border-radius: 35px;
+    background-color: rgb(136, 136, 136);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
     font-weight: 600;
+}
+
+.selected {
+    background-color: #007bff;
+}
+
+.selected-text {
+    color: #007bff !important;
+}
+
+.stepper-node-text {
+    margin-left: 1px;
+}
+
+.stepper-separator {
+    width: 240px;
+    height: 2px;
+    background-color: lightgrey;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.stepper-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    cursor: pointer;
+}
+
+.stepper-text {
+    margin-top: 5px;
+    font-size: 15px;
+    color: rgb(104, 104, 104);
 }
 
 .form-body {
     width: 100%;
     display: flex;
     min-height: 320px;
+    padding-top: 20px;
 }
 
 .form-body-left {
     height: 100%;
     width: 100%;
     padding: 30px;
-    padding-top: 70px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -59,40 +106,31 @@
 }
 
 .right-side-header {
-    height: 60px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     width: 100%;
-    padding-top: 10px;
+    padding-top: 30px;
 }
 
 .right-side-header-text {
     font-family: "Avenir";
     font-weight: 500;
-    font-size: 30px;
+    font-size: 26px;
     color: rgb(92, 91, 91);
-}
-
-.right-side-body {
-    margin-top: 10px;
+    line-height: 130%;
 }
 
 .right-side-body-text {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 400;
     line-height: 170%;
     color: rgb(107, 107, 107);
+    line-height: 170%;
 }
 
-.right-side-header-text-small {
-    font-size: 26px !important;
-    white-space: nowrap;
-}
-
-.right-side-header-text-xs {
-    font-size: 24px !important;
-    white-space: nowrap;
+.right-side-body {
+    margin-top: 15px;
 }
 
 .save-button {

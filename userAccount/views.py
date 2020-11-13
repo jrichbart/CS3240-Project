@@ -155,50 +155,6 @@ def save(request):
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
 
-# def course_form(request):
-#     if(request.user.is_authenticated):
-#         template = loader.get_template('userAccount/courseForm.html')
-#         context = {}
-#         return HttpResponse(template.render(context,request))
-#     else:
-#         messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-#         return HttpResponseRedirect(reverse('login:login'))
-
-# def add_course(request):
-#     try:
-#         student = userAccount.objects.get(user=request.user)
-#         mnemonic = request.POST.get("course_mnemonic")
-#         number = request.POST.get("course_number")
-#         if (len(number)!=4 or len(mnemonic) < 2 or len(mnemonic) > 4):
-#             messages.add_message(request, messages.ERROR, "Incorrect course format")
-#             return HttpResponseRedirect(reverse('userAccount:view_account'))
-
-#         newCourse = Course(student=student, mnemonic=mnemonic, number=number)
-#         newCourse.save()
-#         messages.add_message(request, messages.SUCCESS, "Course added successfully")
-#         return HttpResponseRedirect(reverse('userAccount:view_account'))
-#     except:
-#         if(request.user.is_authenticated):
-#             messages.add_message(request, messages.SUCCESS, "Course was not added")
-#             return HttpResponseRedirect(reverse('userAccount:view_account'))
-#         else:
-#             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-#             return HttpResponseRedirect(reverse('login:login'))
-
-# def delete_course(request):
-#     try:
-#         course_to_delete = request.POST.getlist('delete_item')
-#         Course.objects.get(pk=course_to_delete[0]).delete()
-#         messages.add_message(request, messages.SUCCESS, "Course deleted successfully")
-#         return HttpResponseRedirect(reverse('userAccount:view_account'))
-#     except:
-#         if(request.user.is_authenticated):
-#             messages.add_message(request, messages.ERROR, "Error deleting course")
-#             return HttpResponseRedirect(reverse('userAccount:view_account'))
-#         else:
-#             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
-#             return HttpResponseRedirect(reverse('login:login'))
-
 def view_buddies(request):
     if(request.user.is_authenticated):
         template = loader.get_template('userAccount/buddies.html')
@@ -225,14 +181,34 @@ def buddy_select(request, buddy_name):
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
         shared_courses = currentUser.getSharedCourses(buddy_account)
+
+        # Availability
+        days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+        times = []
+        for i in range(8, 12):
+            times.append(str(i) + ":00 AM")
+        times.append("12:00 PM")
+        for i in range(1,12):
+            times.append(str(i) + ":00 PM")
+
+        user_availability = Availability.objects.get(student=currentUser).calendar
+        buddy_availability = Availability.objects.get(student=buddy_account).calendar
+        
         context = {
             'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
+            'current_user': currentUser,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
             'selected_buddy' : buddy_account,
             'number_buddies' : study_buddy_list_length,
             'shared_courses' : shared_courses,
+            'user_availability': user_availability,
+            'buddy_availability': buddy_availability,
+            'range16': range(16),
+            'range7': range(7),
+            'days': days,
+            'times': times,
         }
         return HttpResponse(template.render(context,request))
     else:

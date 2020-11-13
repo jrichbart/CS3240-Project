@@ -9,6 +9,8 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
 
+    let isLoaded = false;
+
     let isSaved = true;
     const numRows = 7 * 16;
 
@@ -24,6 +26,7 @@
     let mode = 0;
 
     window.addEventListener('load', (event) => {
+        isLoaded = true;
         loadCalendar("{{ calendar }}");
 
         if (window.innerWidth < 1300) {
@@ -41,7 +44,7 @@
 
     // Reload if page is loaded from bfcache
     window.onpageshow = function(event) {
-        if (event.persisted) {
+        if (event.persisted && isLoaded) {
             window.location.reload() 
         }
     };
@@ -169,7 +172,7 @@
         }
     }
 
-    function save() {
+    function save(continueLink) {
         let hasOneBlock = false;
         for (let i = 0; i < main.length; i++) {
             hasOneBlock |= main[i];
@@ -185,18 +188,36 @@
         const new_cal = encodeCalendar();
         let post_data = { 'calendar': new_cal, 'csrfmiddlewaretoken': '{{ csrf_token }}' };
         $.post("{% url 'userAccount:save_availability' %}", post_data, function(data, status) {
-            if (status === "success") {
+            if (continueLink && status === "success") {
+                setIsSaved(true);
+                onContinue(continueLink);
+            } else if (status === "success") {
                 toastr.success("Availability updated");
                 setIsSaved(true);
             } else {
                 toastr.error("An error occurred. Availability could not be updated.");
             }
         });
-        }
+    }
 </script>
 <div class="root-container">
     <div class="form-header">
-        <span class="form-header-text">My Availability</span>
+        <div class="stepper">
+            <div class="stepper-container" onclick="onContinue('hidden-link-profile')">
+                <div class="stepper-node"><span class="stepper-node-text">1</span></div>
+                <span class="stepper-text">Profile</span>
+            </div>
+            <div class="stepper-separator"></div>
+            <div class="stepper-container" onclick="onContinue('hidden-link-contact')">
+                <div class="stepper-node"><span class="stepper-node-text">2</span></div>
+                <span class="stepper-text">Contact Info</span>
+            </div>
+            <div class="stepper-separator"></div>
+            <div class="stepper-container">
+                <div class="stepper-node selected"><span class="stepper-node-text">3</span> </div>
+                <span class="stepper-text selected-text">Availability</span>
+            </div>
+        </div>
     </div>
     <div class="form-body">
         <div class="form-body-left">
@@ -227,7 +248,7 @@
                 <span id="right-header" class="right-side-header-text">When are you available to study?</span>
             </div>
             <div class="right-side-body">
-                <span class="right-side-body-text">Click and drag to set your weekly availability. Don’t worry if it will change from week to week, just try your best to give a rough estimate.</span>
+                <span class="right-side-body-text"><em>Click and drag to set your weekly availability. Don’t worry if it will change from week to week, just try your best to give a rough estimate.</em></span>
             </div>
         </div>
     </div>
@@ -238,26 +259,27 @@
             <button
                 class="btn btn-outline-primary"
                 >
-                Back to Edit Contact Info
+                Back
             </button>
         </a>
         <div>
             <button
             id="save-button"
             class="btn btn-success save-button"
-            onclick="save()"
+            onclick="save(null)"
             >
             Save
             </button>
             <a
-            onclick="onContinue('hidden-link-explore')"
+            onclick="save('hidden-link-explore')"
             >
                 <button
                     class="btn btn-outline-success"
                     >
-                    Explore Study Buddies
+                    Save and Exit
                 </button>
             </a>
+            <a id="hidden-link-profile" href="{% url 'userAccount:view_account' %}" style="display: none;"></a>
             <a id="hidden-link-contact" href="{% url 'userAccount:contact_info' %}" style="display: none;"></a>
             <a id="hidden-link-explore" href="{% url 'find:index' %}" style="display: none;"></a>
         </div>

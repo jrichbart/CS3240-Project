@@ -1,19 +1,30 @@
 {% extends "login/base.html" %}
 {% load static %}
 {% load socialaccount %}
+{% load userAccount_extras %}
 
 {% block content %}
 <link rel="stylesheet" type="text/css" href="{% static 'find/find.css' %}">
 <script>
-    foo("{{ user }}")
-    function foo(user){
-        console.log(user.username)
-    }
     let coursesSelected = [];
     let isSameMajor = false;
     let isAvailability = false;
     let availabilityThreshold = 40;
     let userMajor = "{{ userAccount.major }}"
+
+    const numRows = 7 * 16;
+    let availData = {};
+    let main = [];
+    for (let i = 0; i < numRows; i++) {
+        main.push(false);
+    }
+
+    // Reload if page is loaded from bfcache
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload() 
+        }
+    };
 
     function onAvailabilityInputFocus() {
         const element = Array.from(document.getElementsByClassName("availability-checkbox"))[0];
@@ -75,6 +86,84 @@
             }
         }
     }
+
+    function openModal(yourCal, yourName, theirCal, theirName, theirLastName, buddyRequestName) {
+        availData = {
+            'yourCal': yourCal,
+            'yourName': yourName,
+            'theirCal': theirCal,
+            'theirName': theirName
+        }
+        document.getElementById("modal-buddy-request").href = '/find/' + buddyRequestName;
+        document.getElementById("combined_avail").checked = true;
+        document.getElementById("modalTitle").innerHTML = theirName + " " + theirLastName + "'s Availability";
+        document.getElementById("their-avail-label").innerHTML = theirName + " Is Available";
+        document.getElementById("combined-avail-label").innerHTML = "Both You And " + theirName + " Are Availabile";
+        document.getElementById("avail-header").innerHTML = "Both You And " + theirName + " Are Availabile";
+
+        loadCalendar(combinedCal(yourCal, theirCal), "dark-green");
+        $('#myModal').modal('show');
+    }
+
+    function closeModal() {
+        $('#myModal').modal('hide');
+    }
+
+    function combinedCal(yourCal, theirCal) {
+        let combined = "";
+        for (let i = 0; i < yourCal.length; i++) {
+            if (yourCal.charAt(i) !== "0" && theirCal.charAt(i) !== "0") {
+                combined += "X";
+            } else {
+                combined += "0";
+            }
+        }
+        return combined;
+    }
+
+    function loadCalendar(encodedCal, className) {
+        for (let i = 0; i < encodedCal.length; i++) {
+            if (i >= main.length) break;
+
+            if (encodedCal.charAt(i) === "0") {
+                main[i] = false;
+            } else {
+                main[i] = true;
+            }
+        }
+        applyClasses(main, className);
+    }
+
+    function applyClasses(values, className) {
+        for (let i = 0; i < numRows; i++) {
+            let element = document.getElementById(i);
+            element.classList.remove("dark-green");
+            element.classList.remove("purple");
+            element.classList.remove("teal");
+            if (values[i]) {
+                element.classList.add(className);
+            }
+        }
+    }
+
+    function availSelector(selection) {
+        console.log(availData);
+        switch(selection) {
+            case "Both":
+                document.getElementById("avail-header").innerHTML = "Both You and " + availData.theirName + " Are Availabile";
+                loadCalendar(combinedCal(availData.yourCal, availData.theirCal), "dark-green");
+                return;
+            case "Theirs":
+                document.getElementById("avail-header").innerHTML = availData.theirName + " Is Availabile";
+                loadCalendar(availData.theirCal, "purple");
+                return;
+            case "Yours":
+                document.getElementById("avail-header").innerHTML = "You Are Availabile";
+                loadCalendar(availData.yourCal, "teal");
+                return;
+        }
+    }
+
 </script>
 <div class="root-container">
     <div class="filter-container">
@@ -192,11 +281,9 @@
             </div>
             <div class="buddy-footer-container">
                 {% if buddy.availability_string != "No Availability Data" %}
-                    <a href="">
-                        <span class="availability-link">
-                            Compare Availability
-                        </span>
-                    </a>
+                    <span class="availability-link" onclick='openModal("{{ userAvailability }}", "{{ userAccount.first_name }}", "{{ buddy.raw_availability }}", "{{ buddy.firstName }}", "{{ buddy.lastName }}", "{{ buddy.user.user }}")'>
+                        Compare Availability
+                    </span>
                 {% else %}
                     <div></div>
                 {% endif %}
@@ -207,4 +294,95 @@
     </div>
 </div>
 
+<!-- Modal -->
+<div id="myModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalTitle">
+            <!-- Will be filled by openModal() -->
+          </h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="availability-sidebar">
+                <div class="sidebar-header">
+                    View Times When...
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="avail_radios"
+                        id="combined_avail"
+                        value="combined_avail"
+                        onclick="availSelector('Both')"
+                        checked
+                        >
+                    <label id="combined-avail-label" class="form-check-label" for="combined_avail">
+                      <!-- Will be filled by openModal() -->
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="avail_radios"
+                        id="their_avail"
+                        value="their_avail"
+                        onclick="availSelector('Theirs')"
+                        >
+                    <label id="their-avail-label" class="form-check-label" for="their_avail">
+                        <!-- Will be filled by openModal() -->
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input
+                        class="form-check-input"
+                        type="radio"
+                        name="avail_radios"
+                        id="your_avail"
+                        value="your_avail"
+                        onclick="availSelector('Yours')"
+                        >
+                    <label class="form-check-label" for="your_avail">
+                        You Are Available
+                    </label>
+                </div>
+            </div>
+            <div class="availability-wrapper">
+                <div class="availability-header-wrapper">
+                    <div id="avail-header" class="availability-header">
+                        <!-- Will be filled by openModal() or availSelector() -->
+                    </div>
+                </div>
+                <div class="availability-container">
+                    <div class="day-container">
+                        {% for time in times %}
+                            <div class="time-block"><span>{{ time }}</span></div>
+                        {% endfor %}
+                    </div>
+                    {% for day in days %}
+                        <div class="day-container">
+                            {% for j in range16 %}
+                                <div
+                                    id="{{ forloop.parentloop.counter|add:-1|multiply:16|add:j }}"
+                                    class="hour-block">
+                                </div>
+                            {% endfor %}
+                            <span class="day-text">{{ day }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <a onclick="closeModal()" id="modal-buddy-request" href=""><button type="button" class="btn btn-primary">Send Buddy Request</button></a>
+        </div>
+      </div>
+    </div>
+</div>
 {% endblock %}
