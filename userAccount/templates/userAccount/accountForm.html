@@ -27,8 +27,8 @@
     isLoaded = true;
     displayCourses();
 
-    selectedCourseMnemonic = "CS";
-    selectedCourseNumber = "1110";
+    selectedCourseMnemonic = "AAS";
+    selectedCourseNumber = "1010";
     selectedCourseApplyStyles();
     setIsSaved(true);
 
@@ -40,7 +40,7 @@
     const courseDescSelect = document.getElementById("selected-course-desc");
     const accountForm = document.getElementById("account_form");
     majorSelect.value = "{{ acc_major }}";
-    courseDescSelect.value = "1110 - Introduction to Programming";
+    courseDescSelect.value = "1010 - African-Amer & African Stds I";
 
     courseMnemonicSelect.addEventListener('change', function() {
       selectedCourseMnemonic = courseMnemonicSelect.value;
