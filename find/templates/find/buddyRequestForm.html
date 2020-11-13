@@ -1,0 +1,141 @@
+{% extends "login/base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'buddyRequest/buddyRequest.css' %}">
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+<script>
+    let isLoaded = false;
+
+    window.onload = function() {
+        isLoaded = true;
+    };
+
+    // Reload if page is loaded from bfcache
+    window.onpageshow = function(event) {
+        if (event.persisted && isLoaded) {
+            window.location.reload() 
+        }
+    };
+
+    function onSend() {
+        if (!document.getElementById("message").value) {
+            swal({
+                    title: "Are you sure you want to send?",
+                    text: "This request has no message.",
+                    icon: "warning",
+                    buttons: ["Cancel", "Send Anyway"]
+                })
+                .then((value) => {
+                    if (value) post();
+                });
+        } else {
+            post();
+        }
+    }
+
+    function post() {
+        const body = {
+            "request_message_input": document.getElementById("message").value,
+            'csrfmiddlewaretoken': '{{ csrf_token }}'
+        }
+
+        $.post(document.getElementById("hidden-post-url").href, body, function(data, status) {
+            if (status === "success") {
+                swal({
+                    title: "Success!",
+                    text: "Your request has been sent.",
+                    icon: "success",
+                    button: "Back to Explore"
+                })
+                .then(() => {
+                    document.getElementById("hidden-explore-link").click();
+                });
+            } else {
+                toastr.error("An error occurred. Contact info could not be updated.");
+            }
+        });
+    }
+
+    function onCancel() {
+        if (document.getElementById("message").value) {
+            swal({
+                title: "Are you sure you want leave?",
+                text: "Your unsaved changes will be lost.",
+                icon: "warning",
+                buttons: true,
+                dangerMode: true,
+            })
+            .then((value) => {
+                if (value) {
+                    document.getElementById("hidden-explore-link").click();
+                }
+            });
+        } else {
+            document.getElementById("hidden-explore-link").click();
+        }
+    }
+</script>
+<div class="root-container">
+    <div class="form-header">
+        <span class="form-header-text">Send Buddy Request</span>
+    </div>
+    <div class="form-body">
+        <div class="form-body-left">
+            <form>
+                {% csrf_token %}
+                <div class="form-group row">
+                    <label for="send_to" class="col-sm-5 col-form-label">
+                        Send To
+                    </label>
+                    <div class="col-sm-7 send-to-container">
+                        <span class="send-to-text">{{ requestee_name }}</span>
+                    </div>
+                </div>
+                <div class="form-group row form-textarea">
+                    <label for="discord_name" class="col-sm-5 col-form-label">
+                        Message
+                    </label>
+                    <div class="col-sm-7">
+                        <textarea
+                            class="form-control"
+                            id="message"
+                            name = "message"
+                            placeholder="Tell {{ requestee_first_name }} a bit about yourself. What do you want to study together?"
+                            required
+                            ></textarea>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="form-body-right">
+            <div class="right-side-header">
+                <span id="right-header" class="right-side-header-text">What happens next?</span>
+            </div>
+            <div class="right-side-body">
+                <span class="right-side-body-text"><em>In order to officially become study buddies, {{ requestee_first_name }} needs to approve your request. When he does, he’ll show up on your “My Buddies” page!</em></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-footer">
+        <div>
+            <button
+                class="btn btn-outline-danger"
+                onclick="onCancel()"
+                >
+                Cancel
+            </button>
+            <button
+                id="save-button"
+                class="btn btn-success save-button"
+                onclick="onSend()"
+                >
+                Send Request
+            </button>
+            <a id="hidden-explore-link" href="{% url 'find:index' %}" style="display: none;"></a>
+            <a id="hidden-post-url" href="{% url 'find:view_buddy_request' requestee_username %}" style="display: none;"></a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

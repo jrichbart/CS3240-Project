@@ -214,62 +214,7 @@ class userAccountCourseViewTests(TestCase):
         create_course(student=testAccount, mnemonic="CS", number="3240")
         url = reverse('userAccount:view_account')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "CS3240")
-
-    def test_no_course_list(self):
-        """
-        account view with no courses should say so
-        """
-        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
-        login = self.client.force_login(testUser)
-        url = reverse('userAccount:view_account')
-        response = self.client.get(url, follow=True)
-        self.assertContains(response, "No courses have been added to the account")
-
-class userAccountCourseManipulationTests(TestCase):
-    def test_add_course(self):
-        """
-        adding a course appends to account profile view
-        """
-        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
-        login = self.client.force_login(testUser)
-        url = reverse('userAccount:add_course')
-        data = {'course_mnemonic' : 'CS', 'course_number' : '1010'}
-        self.client.post(url,data)
-        response = self.client.get(reverse('userAccount:view_account'))
-        self.assertContains(response,"CS1010")
-
-    def test_add_invalid_course(self):
-        """
-        adding an invalid course will report an error message
-        """
-        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
-        login = self.client.force_login(testUser)
-        url = reverse('userAccount:add_course')
-        data = {'course_mnemonic' : 'CSFFF', 'course_number' : '2'}
-        self.client.post(url,data)
-        response = self.client.get(reverse('userAccount:view_account'))
-        self.assertContains(response,"Incorrect course format")
-
-    def test_delete_course(self):
-        """
-        deleting a course removes it from account view
-        """
-        testUser = User.objects.create_user(username="testUser", email = "email@virginia.edu", password="testPassword")
-        create_user(user=testUser, first_name="John", last_name="Doe", major='', bio='')
-        login = self.client.force_login(testUser)
-        testAccount = userAccount.objects.all()[0]
-        create_course(student=testAccount, mnemonic="CS", number="3240")
-        pk = Course.objects.all()[0].pk
-        url = reverse('userAccount:delete_course')
-        data = {'delete_item' : [pk]}
-        self.client.post(url,data)
-        url = reverse('userAccount:view_account')
-        response = self.client.get(url, follow=True)
-        self.assertContains(response, "No courses have been added to the account")
+        self.assertContains(response, "CS 3240")
 
 class userAccountContactSaveViewTests(TestCase):
     def test_computing_id_update(self):
@@ -338,7 +283,7 @@ class userAccountApproveBuddyViewTests(TestCase):
         self.client.post(url,data)
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "no requests pending")
+        self.assertContains(response, "No Requests pending")
 
 class userAccountDenyBuddyViewTests(TestCase):
     def test_deny_buddy(self):
@@ -357,4 +302,4 @@ class userAccountDenyBuddyViewTests(TestCase):
         self.client.post(url,data)
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "no requests pending")
+        self.assertContains(response, "No Requests pending")

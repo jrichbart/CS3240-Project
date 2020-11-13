@@ -1,7 +1,6 @@
 .root-container {
     width: 100%;
     height: calc(100vh - 56px);
-    min-height: 750px;
     padding: 50px;
     padding-left: calc(20vw - 100px);
     padding-right: calc(20vw - 100px);
@@ -35,14 +34,6 @@
     font-weight: 600;
 }
 
-.selected {
-    background-color: #007bff;
-}
-
-.selected-text {
-    color: #007bff !important;
-}
-
 .stepper-node-text {
     margin-left: 1px;
 }
@@ -53,6 +44,14 @@
     background-color: lightgrey;
     margin-left: 20px;
     margin-right: 20px;
+}
+
+.selected {
+    background-color: #007bff;
+}
+
+.selected-text {
+    color: #007bff !important;
 }
 
 .stepper-container {
@@ -69,21 +68,25 @@
     color: rgb(104, 104, 104);
 }
 
+.form-header-text {
+    font-size: 80px;
+    font-family: "Avenir";
+    font-weight: 600;
+}
+
 .form-body {
+    height: 50%;
     width: 100%;
+    padding-top: 20px;
     display: flex;
     min-height: 320px;
-    padding-top: 20px;
 }
 
 .form-body-left {
     height: 100%;
     width: 100%;
     padding: 30px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
+    padding-right: 50px;
 }
 
 .form-body-right {
@@ -93,7 +96,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    padding-left: 30px;
+    padding-left: 50px;
     padding-right: 30px;
 }
 
@@ -121,70 +124,17 @@
     line-height: 130%;
 }
 
+.right-side-body {
+    margin-top: 15px;
+}
+
 .right-side-body-text {
     font-size: 17px;
     font-weight: 400;
     line-height: 170%;
     color: rgb(107, 107, 107);
-    line-height: 170%;
-}
-
-.right-side-body {
-    margin-top: 15px;
 }
 
 .save-button {
     margin-right: 20px;
-}
-
-.availability-container {
-    display: flex;
-    align-items: flex-start;
-    cursor: default !important;
-    -webkit-user-select: none;
-    margin-bottom: 10px;
-}
-
-.day-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    margin-left: 5px;
-    margin-right: 5px;
-}
-
-.hour-block {
-    width: 50px;
-    height: 23px;
-    background-color: #e0e0e0;
-}
-
-.time-block {
-    height: 23px;
-    width: 70px;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-}
-
-.day-text {
-    -webkit-user-select: none !important;
-}
-
-.green {
-    background-color: #53cf69 !important;
-}
-
-.avail-btn {
-    width: 100px !important;
-}
-
-.invalid-message {
-    color: red;
-}
-
-.hide {
-    display: none;
 }
