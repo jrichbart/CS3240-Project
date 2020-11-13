@@ -1,0 +1,110 @@
+.root-container {
+    width: 100%;
+    height: calc(100vh - 56px);
+    padding: 50px;
+    padding-left: calc(20vw - 100px);
+    padding-right: calc(20vw - 100px);
+    display: flex;
+    flex-direction: column;
+}
+
+.form-header {
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.form-header-text {
+    font-size: 80px;
+    font-family: "Avenir";
+    font-weight: 600;
+}
+
+.form-body {
+    height: 50%;
+    width: 100%;
+    padding-top: 20px;
+    display: flex;
+    min-height: 320px;
+}
+
+.form-body-left {
+    height: 100%;
+    width: 100%;
+    padding: 30px;
+    padding-right: 50px;
+}
+
+.send-to-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+.send-to-text {
+    font-weight: 600;
+}
+
+.form-textarea {
+    min-height: calc(100% - 50px) !important;
+}
+
+form {
+    height: 100%;
+}
+
+textarea {
+    min-height: 100% !important;
+    max-height: 45vh !important;
+}
+
+.form-body-right {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding-left: 50px;
+    padding-right: 30px;
+}
+
+.right-side-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    padding-top: 30px;
+}
+
+.right-side-header-text {
+    font-family: "Avenir";
+    font-weight: 500;
+    font-size: 26px;
+    color: rgb(92, 91, 91);
+    line-height: 130%;
+}
+
+.right-side-body {
+    margin-top: 15px;
+}
+
+.right-side-body-text {
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 170%;
+    color: rgb(107, 107, 107);
+}
+
+.form-footer {
+    padding: 10px;
+    padding-left: 28px;
+    padding-right: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.save-button {
+    margin-left: 20px;
+}

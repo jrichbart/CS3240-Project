@@ -29,10 +29,19 @@ def index(request):
         c['number'] = course.number
         user_courses_as_dict.append(c)
 
+    user_buddies_requester = buddies.objects.filter(requester=user_account)
+    user_buddies_requestee = buddies.objects.filter(requestee=user_account)
+    user_buddy_names = set()
+    for buddy in user_buddies_requester:
+        user_buddy_names.add(buddy.requestee.user)
+
+    for buddy in user_buddies_requestee:
+        user_buddy_names.add(buddy.requester.user)
+
     latest_account_list = userAccount.objects.all()
     latest_account_list_as_dict = []
     for account in latest_account_list:
-        if account.user == request.user:
+        if account.user == request.user or account.user in user_buddy_names:
             continue
 
         account_user = userAccount.objects.get(user=account.user)
@@ -68,16 +77,31 @@ def index(request):
         a['numBuddies'] = 0
         a['courses'] = account_courses_as_dict
         a['availability_string'] = get_availability_string(user_availability, account_availability)
+        a['raw_availability'] = account_availability
         latest_account_list_as_dict.append(a)
 
     # Sort each buddy's courses
     for buddy in latest_account_list_as_dict:
         buddy['courses'] = sorted(buddy['courses'], key=lambda c: c['mnemonic'])
 
+    # Availability
+    days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+    times = []
+    for i in range(8, 12):
+        times.append(str(i) + ":00 AM")
+    times.append("12:00 PM")
+    for i in range(1,12):
+        times.append(str(i) + ":00 PM")
+
     context = {
         'filtered_buddy_list': latest_account_list_as_dict,
         'userAccount': user_account,
-        'userCourses': user_courses_as_dict
+        'userCourses': user_courses_as_dict,
+        'userAvailability': user_availability,
+        'range16': range(16),
+        'range7': range(7),
+        'days': days,
+        'times': times,
         }
     return HttpResponse(template.render(context, request))
 
@@ -92,10 +116,27 @@ def get_availability_string(u, a):
         return str(int(100 * matches / len(u))) + "% Availability Match"
 
 def view_send_request(request, user):
-    template = loader.get_template('find/buddyRequest.html')
+    template = loader.get_template('find/buddyRequestForm.html')
+    requester = userAccount.objects.get(user=request.user)
+
+    # Redirect to find page if the requester already has a buddy relationship
+    # with this user
+    user_buddies_requester = buddies.objects.filter(requester=requester)
+    user_buddies_requestee = buddies.objects.filter(requestee=requester)
+    user_buddy_names = set()
+    for buddy in user_buddies_requester:
+        user_buddy_names.add(str(buddy.requestee.user))
+
+    for buddy in user_buddies_requestee:
+        user_buddy_names.add(str(buddy.requester.user))
+
+    if user in user_buddy_names:
+        return HttpResponseRedirect(reverse('find:index'))
+
     buddy = User.objects.get(username=user)
     requestee = userAccount.objects.get(user=buddy) 
     context = {
+        "requestee_first_name": requestee.first_name,
         "requestee_name": requestee.first_name + " " + requestee.last_name,
         "requestee_username": requestee.user
     }

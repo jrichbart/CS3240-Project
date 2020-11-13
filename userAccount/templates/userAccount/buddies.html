@@ -1,119 +1,320 @@
 {% extends "login/base.html" %}
 {% load static %}
+{% load userAccount_extras %}
 
 {% block content %}
 <head>
-  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/footerFix.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'userAccount/buddies.css' %}">
   <title>Your Buddies</title>
+  <script>
+    const numRows = 7 * 16;
+    let availData = {};
+    let main = [];
+    for (let i = 0; i < numRows; i++) {
+        main.push(false);
+    }
+
+    function openModal(yourCal, theirCal, theirName, theirLastName) {
+        availData = {
+            'yourCal': yourCal,
+            'theirCal': theirCal,
+            'theirName': theirName
+        }
+        document.getElementById("combined_avail").checked = true;
+        document.getElementById("modalTitle").innerHTML = theirName + " " + theirLastName + "'s Availability";
+        document.getElementById("their-avail-label").innerHTML = theirName + " Is Available";
+        document.getElementById("combined-avail-label").innerHTML = "Both You And " + theirName + " Are Availabile";
+        document.getElementById("avail-header").innerHTML = "Both You And " + theirName + " Are Availabile";
+
+        loadCalendar(combinedCal(yourCal, theirCal), "dark-green");
+        $('#myModal').modal('show');
+    }
+
+    function combinedCal(yourCal, theirCal) {
+        let combined = "";
+        for (let i = 0; i < yourCal.length; i++) {
+            if (yourCal.charAt(i) !== "0" && theirCal.charAt(i) !== "0") {
+                combined += "X";
+            } else {
+                combined += "0";
+            }
+        }
+        return combined;
+    }
+
+    function loadCalendar(encodedCal, className) {
+        for (let i = 0; i < encodedCal.length; i++) {
+            if (i >= main.length) break;
+
+            if (encodedCal.charAt(i) === "0") {
+                main[i] = false;
+            } else {
+                main[i] = true;
+            }
+        }
+        applyClasses(main, className);
+    }
+
+    function applyClasses(values, className) {
+        for (let i = 0; i < numRows; i++) {
+            let element = document.getElementById(i);
+            element.classList.remove("dark-green");
+            element.classList.remove("purple");
+            element.classList.remove("teal");
+            if (values[i]) {
+                element.classList.add(className);
+            }
+        }
+    }
+
+    function availSelector(selection) {
+        console.log(availData);
+        switch(selection) {
+            case "Both":
+                document.getElementById("avail-header").innerHTML = "Both You and " + availData.theirName + " Are Availabile";
+                loadCalendar(combinedCal(availData.yourCal, availData.theirCal), "dark-green");
+                return;
+            case "Theirs":
+                document.getElementById("avail-header").innerHTML = availData.theirName + " Is Availabile";
+                loadCalendar(availData.theirCal, "purple");
+                return;
+            case "Yours":
+                document.getElementById("avail-header").innerHTML = "You Are Availabile";
+                loadCalendar(availData.yourCal, "teal");
+                return;
+        }
+    }
+  </script>
 </head>
 <body>
-      <br>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 left-col">
 
-      <div class="container">
-        <div class="row">
-            <div class="col-md-6" style="padding-right:20px; border-right: 1px solid #ccc;">
-              <h3>My Buddies</h3>
-                <div>
-                  {% if accepted_buddies %}
-                    <div class="list-group">
-                      {% for buddy in accepted_buddies %}
-                      {% if buddy == selected_buddy %}
-                        <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
-                        {% else %}
-                        <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
-                        {% endif %}
-                        {% endfor %}
-                    </div>
-                  {% else %}
-                  <p>no accepted buddies</p>
-                  {% endif %}
-                </div>
-                <div>
-                  <h1>Pending Your Approval</h1>
-                  {% if pending_your_approval %}
-                  <div class="list-group">
-                      {% for buddy in pending_your_approval %}
-                        {% if buddy == selected_buddy %}
-                          <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
-                        {% else %}
-                          <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
-                        {% endif %}
-                      {% endfor %}
-                  </div>
-                  {% else %}
-                  <p>no requests pending</p>
-                  {% endif %}
-                </div>
-                <div>
-                  <h1>Pending Their Approval</h1>
-                  {% if pending_their_approval %}
-                  <div class="list-group">
-                    {% for buddy in pending_their_approval %}
-                    {% if buddy == selected_buddy %}
-                      <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action active">{{ buddy }}</a>
-                      {% else %}
-                      <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
-                      {% endif %}
-                      {% endfor %}
-                  </div>
-                  {% else %}
-                  <p>no requests pending</p>
-                  {% endif %}
-                  {% if messages %}
-                  <div class="messages">
-                    {% for message in messages %}
-                      <p>{{ message }}</p>
-                    {% endfor %}
-                  </div>
-                  {% endif %}
-                </div>
+        <span class="buddies-header">My Buddies</span>
+        <div>
+          {% if accepted_buddies %}
+            <div class="list-group">
+              {% for buddy in accepted_buddies %}
+                {% if buddy == selected_buddy %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                {% else %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                {% endif %}
+              {% endfor %}
             </div>
-              {% if selected_buddy %}
-              <div class="col-md-6">
-                <h1>{{ selected_buddy.name }}</h1>
-                {% if number_buddies == 1 %}
-                  <h4 style="color:gray">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddy</h4>
-                {% else %}
-                  <h4 style="color:gray">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddies</h4>
-                {% endif %}
-                <i style="color:gray">{{ selected_buddy.bio }}</i>
-                <h2>Shared Courses</h2>
-                {% if shared_courses %}
-                  {% for course in shared_courses %}
-                    <span class="badge badge-pill badge-primary">{{ course.mnemonic }}{{ course.number }}</span>
-                  {% endfor %}
-                {% else %}
-                  <i style="color:gray">No shared courses</i>
-                {% endif %}
-
-                {% if selected_buddy in pending_your_approval %}
-                <h2>Contact Info  <img src="{% static 'userAccount/images/padlock.png' %}" align="right" style="height: 1em; width: 1em;"/></h2> 
-                <i style="color:gray;">Contact info will be available after the request is approved</i>
-                <br>
-                <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
-                    {% csrf_token %}
-                  <button type="submit" class="btn btn-danger" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
-                  </form>
-                {% elif selected_buddy in pending_their_approval %}
-                <h2>Contact Info  <img src="{% static 'userAccount/images/padlock.png' %}" align="right" style="height: 1em; width: 1em;"/></h2> 
-                  <i style="color:gray;">Contact info will be available after the request is approved</i>
-                  <br>
-                  <h4>This request is pending {{ selected_buddy.name }}'s approval</h4>
-                {% else %}
-                  <h2>Contact Info</h2>
-                  <span style="float:left;"><b style="color:gray;">Computing ID</b></span><span style="float:right; color:gray;">{{ selected_buddy.computing_id }}</span><br>​
-                  <span style="float:left;"><b style="color:gray;">Phone Number</b></span><span style="float:right; color:gray;">{{ selected_buddy.phone_number }}</span><br>​
-                  <span style="float:left;"><b style="color:gray;">Discord Username</b></span><span style="float:right; color:gray;">{{ selected_buddy.discord_name }}</span><br>​
-                {% endif %}
-              </div>
-              {% else %}
-              <div class="col-md-6 d-flex align-items-center">
-                <i>Select a buddy to view details</i>
-              </div>
-              {% endif %}
+          {% else %}
+            <p>No Accepted Buddies</p>
+          {% endif %}
         </div>
-    </div>
+        <span class="buddies-subheader">Pending Your Approval</span>
+        <div>
+          {% if pending_your_approval %}
+            <div class="list-group">
+              {% for buddy in pending_your_approval %}
+                {% if buddy == selected_buddy %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                {% else %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>No Requests Pending</p>
+          {% endif %}
+        </div>
+        <span class="buddies-subheader">Pending Their Approval</span>
+        <div>
+          {% if pending_their_approval %}
+            <div class="list-group">
+              {% for buddy in pending_their_approval %}
+                {% if buddy == selected_buddy %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                {% else %}
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <p>No Requests Pending</p>
+          {% endif %}
+        </div>
+        </div>
+        {% if selected_buddy %}
+          <div class="col-md-6 right-col">
+            <span class="buddies-header">{{ selected_buddy.first_name }} {{ selected_buddy.last_name }}</span>
+            {% if number_buddies == 1 %}
+              <span class="buddies-subtitle">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddy</span>
+            {% else %}
+                <span class="buddies-subtitle">{{ selected_buddy.major }} Major &#183; {{ number_buddies }} Study Buddies</span>
+            {% endif %}
 
+            <p>{{ selected_buddy.bio }}</p>
+
+            <span class="buddies-subheader">Shared Courses</span>
+            <div class="courses-container">
+              {% for course in shared_courses %}
+                <span class="course-chip">{{ course.mnemonic }} {{ course.number }}</span>
+              {% endfor %}
+            </div>
+
+            {% if selected_buddy in pending_your_approval %}
+              <div class="contact-info-header">
+                <span class="buddies-subheader">Contact Info</span> 
+                <img src="{% static 'userAccount/images/padlock.png' %}" class="padlock-icon"/>
+              </div>
+              <i>Contact info will be available after the request is approved.</i>
+              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
+                Compare Availability
+              </span>
+              <div class="buddy-footer">
+                <div class="buddy-form">
+                  <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
+                  </form>
+                  <form action="{% url 'userAccount:deny_buddy' %}" id = "deny_buddy" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger deny-button" name="deny_item" value="{{ selected_buddy.pk }}">Deny</button>
+                  </form>
+                </div>
+              </div>
+            {% elif selected_buddy in pending_their_approval %}
+              <div class="contact-info-header">
+                <span class="buddies-subheader">Contact Info</span> 
+                <img src="{% static 'userAccount/images/padlock.png' %}" class="padlock-icon"/>
+              </div>
+              <i>Contact info will be available after the request is approved.</i>
+              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
+                Compare Availability
+              </span>
+              <div class="buddy-footer">
+                <span class="pending-their-approval-text">This request is pending {{ selected_buddy.first_name }}'s approval</span>
+              </div>
+            {% else %}
+              <span class="buddies-subheader">Contact Info</span>
+              <div class="contact-info-container">
+                <div class="contact-info-row">
+                  <span class="contact-info-label">Computing Id</span>
+                  <span class="contact-info-data">{{ selected_buddy.computing_id }}</span>
+                </div>
+                <div class="contact-info-row">
+                  <span class="contact-info-label">Phone Number</span>
+                  <span class="contact-info-data">{{ selected_buddy.phone_number }}</span>
+                </div>
+                <div class="contact-info-row">
+                  <span class="contact-info-label">Discord Username</span>
+                  <span class="contact-info-data">{{ selected_buddy.discord_name }}</span>
+                </div>
+              </div>
+              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
+                Compare Availability
+              </span>
+              <div class="buddy-footer">
+                <form class="button-form">
+                  <button class="btn btn-secondary">Generate Zoom Link</button>
+                </form>
+              </div>
+            {% endif %}
+          </div>
+        {% else %}
+          <div class="col-md-6 d-flex align-items-center">
+            <span class="no-selection"><i>Select a buddy to view details</i></span>
+          </div>
+        {% endif %}
       </div>
-    </body>
+    </div>
+  </div>
+</body>
+
+<!-- Modal -->
+<div id="myModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myModal" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalTitle">
+          <!-- Will be filled by openModal() -->
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <div class="availability-sidebar">
+              <div class="sidebar-header">
+                  View Times When...
+              </div>
+              <div class="form-check">
+                  <input
+                      class="form-check-input"
+                      type="radio"
+                      name="avail_radios"
+                      id="combined_avail"
+                      value="combined_avail"
+                      onclick="availSelector('Both')"
+                      checked
+                      >
+                  <label id="combined-avail-label" class="form-check-label" for="combined_avail">
+                    <!-- Will be filled by openModal() -->
+                  </label>
+              </div>
+              <div class="form-check">
+                  <input
+                      class="form-check-input"
+                      type="radio"
+                      name="avail_radios"
+                      id="their_avail"
+                      value="their_avail"
+                      onclick="availSelector('Theirs')"
+                      >
+                  <label id="their-avail-label" class="form-check-label" for="their_avail">
+                      <!-- Will be filled by openModal() -->
+                  </label>
+              </div>
+              <div class="form-check">
+                  <input
+                      class="form-check-input"
+                      type="radio"
+                      name="avail_radios"
+                      id="your_avail"
+                      value="your_avail"
+                      onclick="availSelector('Yours')"
+                      >
+                  <label class="form-check-label" for="your_avail">
+                      You Are Available
+                  </label>
+              </div>
+          </div>
+          <div class="availability-wrapper">
+              <div class="availability-header-wrapper">
+                  <div id="avail-header" class="availability-header">
+                      <!-- Will be filled by openModal() or availSelector() -->
+                  </div>
+              </div>
+              <div class="availability-container">
+                  <div class="day-container">
+                      {% for time in times %}
+                          <div class="time-block"><span>{{ time }}</span></div>
+                      {% endfor %}
+                  </div>
+                  {% for day in days %}
+                      <div class="day-container">
+                          {% for j in range16 %}
+                              <div
+                                  id="{{ forloop.parentloop.counter|add:-1|multiply:16|add:j }}"
+                                  class="hour-block">
+                              </div>
+                          {% endfor %}
+                          <span class="day-text">{{ day }}</span>
+                      </div>
+                  {% endfor %}
+              </div>
+          </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
