@@ -283,7 +283,7 @@ class userAccountApproveBuddyViewTests(TestCase):
         self.client.post(url,data)
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "No Requests pending")
+        self.assertContains(response, "No Requests Pending")
 
 class userAccountDenyBuddyViewTests(TestCase):
     def test_deny_buddy(self):
@@ -302,4 +302,4 @@ class userAccountDenyBuddyViewTests(TestCase):
         self.client.post(url,data)
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
-        self.assertContains(response, "No Requests pending")
+        self.assertContains(response, "No Requests Pending")

@@ -168,11 +168,16 @@
                 Compare Availability
               </span>
               <div class="buddy-footer">
-                <form class="button-form" action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-success" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
-                  <button onclick="event.stopPropagation()" class="btn btn-outline-danger deny-button" name="approve_item">Deny</button>
-                </form>
+                <div class="buddy-form">
+                  <form action="{% url 'userAccount:approve_buddy' %}" id = "approve_buddy" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success" name="approve_item" value="{{ selected_buddy.pk }}">Approve</button>
+                  </form>
+                  <form action="{% url 'userAccount:deny_buddy' %}" id = "deny_buddy" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger deny-button" name="deny_item" value="{{ selected_buddy.pk }}">Deny</button>
+                  </form>
+                </div>
               </div>
             {% elif selected_buddy in pending_their_approval %}
               <div class="contact-info-header">

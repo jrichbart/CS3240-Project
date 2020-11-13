@@ -39,7 +39,7 @@
 }
 
 .outlined {
-    border: 1px solid #4285f4;
+    border: 1px solid #4285f4 !important;
 
 }
 
@@ -115,6 +115,10 @@
     display: flex;
     width: 100%;
     justify-content: flex-start;
+}
+
+form {
+    display: inline-block !important;
 }
 
 .deny-button {
