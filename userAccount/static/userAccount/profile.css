@@ -195,7 +195,7 @@ form {
     font-weight: 600;
     font-size: 1em;
     padding-left: 25px;
-    padding-right: 15px;
+    padding-right: 45px;
     padding-top: 3px;
     padding-bottom: 3px;
     border-radius: 20px;
@@ -207,6 +207,7 @@ form {
 
 .x-icon {
     margin-left: 10px;
+    margin-right: -30px;
     filter: invert(70%) sepia(86%) saturate(0%) hue-rotate(186deg) brightness(111%) contrast(97%);
     height: 20px;
 }
