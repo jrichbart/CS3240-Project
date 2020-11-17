@@ -35,19 +35,20 @@ h3 {
 
 .login-main-text {
     color: white;
-    font-family: 'Avenir';
-    font-weight: 600;
+    font-family: 'Nunito';
     text-shadow: 5px 4px 16px rgba(7,28,35,0.7);
 }
 
 .welcome {
     font-size: 9vw;
     line-height: 140%;
+    font-weight: 800;
 }
 
 .welcome-body {
     font-size: 3.7vw;
     line-height: 130%;
+    font-weight: 700;
 }
 
 .text-wrapper {
