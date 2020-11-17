@@ -16,14 +16,14 @@
 }
 
 .buddies-header {
-    font-family: 'Avenir';
-    font-weight: 600;
+    font-family: 'Nunito';
+    font-weight: 700;
     font-size: 40px;
     margin-bottom: 10px;
 }
 
 .buddies-subheader {
-    font-family: 'Avenir';
+    font-family: 'Nunito';
     font-weight: 600;
     font-size: 25px;
     margin-top: 25px;
@@ -201,7 +201,7 @@ form {
 }
 
 .availability-header {
-    font-family: "Avenir";
+    font-family: "Nunito";
     font-weight: 600;
     font-size: 20px;
     color: rgb(61, 61, 61);
@@ -212,7 +212,7 @@ form {
 }
 
 .sidebar-header {
-    font-family: "Avenir";
+    font-family: "Nunito";
     font-weight: 600;
     font-size: 22px;
     margin-bottom: 10px;

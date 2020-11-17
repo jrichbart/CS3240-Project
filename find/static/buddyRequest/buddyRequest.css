@@ -17,7 +17,7 @@
 
 .form-header-text {
     font-size: 80px;
-    font-family: "Avenir";
+    font-family: "Nunito";
     font-weight: 600;
 }
 
@@ -79,7 +79,7 @@ textarea {
 }
 
 .right-side-header-text {
-    font-family: "Avenir";
+    font-family: "Nunito";
     font-weight: 500;
     font-size: 26px;
     color: rgb(92, 91, 91);

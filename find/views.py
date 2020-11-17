@@ -110,10 +110,13 @@ def get_availability_string(u, a):
         return "No Availability Data"
     else:
         matches = 0
+        available = 0
         for i in range(len(u)):
-            if u[i] == a[i]:
-                matches += 1
-        return str(int(100 * matches / len(u))) + "% Availability Match"
+            if u[i] == "X":
+                available += 1
+                if u[i] == a[i]:
+                    matches += 1
+        return str(int(100 * matches / available)) + "% Availability Match"
 
 def view_send_request(request, user):
     template = loader.get_template('find/buddyRequestForm.html')

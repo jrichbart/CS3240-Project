@@ -85,6 +85,7 @@
       s += '<option value="' + courseData[selectedCourseMnemonic][i] + '">' + courseData[selectedCourseMnemonic][i] + '</option>';
     }
     document.getElementById('selected-course-desc').innerHTML = s;
+    selectedCourseNumber = document.getElementById("selected-course-desc").value.slice(0,4);
   }
 
   function displayCourses() {
