@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template import loader
 from django.contrib.auth.models import User
-from userAccount.models import userAccount, Course, Availability, buddies
+from userAccount.models import userAccount, Course, Availability, buddies, Message
 from django.urls import reverse
 
 def index(request):
@@ -155,4 +155,7 @@ def send_buddy_request(request, user):
 
     new_buddy_request = buddies(requester=current_user, requestee=requestee, request_message=request_message, approved=False, denied_message="", denied=False)
     new_buddy_request.save()
+
+    message = Message(unread=True, content=request_message, sequence=1, from_requester=True, buddies=new_buddy_request)
+    message.save()
     return HttpResponseRedirect(reverse('find:index'))
