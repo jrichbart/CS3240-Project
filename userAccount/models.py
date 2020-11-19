@@ -74,3 +74,10 @@ class buddies(models.Model):
     approved = models.BooleanField()
     denied_message = models.TextField()
     denied = models.BooleanField()
+
+class Message(models.Model):
+    unread = models.BooleanField()
+    content = models.CharField(max_length=10000)
+    sequence = models.IntegerField()
+    from_requester = models.BooleanField()
+    buddies = models.ForeignKey(buddies, on_delete=models.CASCADE)
