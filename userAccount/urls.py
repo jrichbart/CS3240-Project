@@ -18,5 +18,6 @@ urlpatterns = [
     path('approve/', views.approve_buddy, name='approve_buddy'),
     path('deny/', views.deny_buddy, name='deny_buddy'),
     path('contact/', views.contact_info, name='contact_info'),
-    path('contact/save', views.save_contact, name='save_contact')
+    path('contact/save', views.save_contact, name='save_contact'),
+    path('zoom', views.zoom, name='zoom')
 ]
