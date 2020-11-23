@@ -120,6 +120,19 @@ class userAccountModelTest(TestCase):
         meeting = create_zoom_meeting(buddies=buddy_object, meeting_link="zoom.us", start_time="2021-11-23 12:00:00")
         self.assertEqual(testAccount.getUpcomingMeetings(testRequesteeAccount), meeting)
 
+    def test_get_upcoming_meeting_none(self):
+        """
+        userAccount gets the next upcoming meeting that is not in the past which is none
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
+        buddy_object = create_buddy(testAccount,testRequesteeAccount, True)
+        meeting = create_zoom_meeting(buddies=buddy_object, meeting_link="zoom.us", start_time="2019-11-23 12:00:00")
+        self.assertEqual(testAccount.getUpcomingMeetings(testRequesteeAccount), None)
+
+
 
 class userAccountHasAccountViewTests(TestCase):
     def test_logged_in(self):
