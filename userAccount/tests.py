@@ -4,7 +4,7 @@ from django.urls import reverse
 
 # Create your tests here.
 
-from .models import userAccount, Course, buddies
+from .models import userAccount, Course, buddies, ZoomMeeting
 
 def create_user(user, name, major, bio):
     """
@@ -24,6 +24,13 @@ def create_buddy(requester, requestee, approved):
     creates a buddy relation with the given requester and requestee and approved value
     """
     return buddies.objects.create(requester=requester, requestee=requestee, request_message="", approved=approved, denied_message="", denied=False)
+
+def create_zoom_meeting(buddies, meeting_link, start_time):
+    """
+    creates a zoom meeting object with meeting link and start time
+    """
+    return ZoomMeeting.objects.create(buddies=buddies, meeting_link=meeting_link, start_time=start_time)
+
 
 class userAccountModelTest(TestCase):
     def test_self_str(self):
@@ -89,6 +96,29 @@ class userAccountModelTest(TestCase):
         create_course(testAccount2, "CS", "3240")
         create_course(testAccount2, "STS", "4500")
         self.assertEqual(testAccount.getSharedCourses(testAccount2),[shared])
+
+    def test_get_buddy_object(self):
+        """
+        userAccount gets approved buddy object with the associated buddy
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
+        buddy_object = create_buddy(testAccount,testRequesteeAccount, True)
+        self.assertEqual(testAccount.getBuddyObject(testRequesteeAccount), buddy_object)
+
+    def test_get_upcoming_meeting(self):
+        """
+        userAccount gets the next upcoming meeting that is not in the past
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
+        buddy_object = create_buddy(testAccount,testRequesteeAccount, True)
+        meeting = create_zoom_meeting(buddies=buddy_object, meeting_link="zoom.us", start_time="2021-11-23 12:00:00")
+        self.assertEqual(testAccount.getUpcomingMeetings(testRequesteeAccount), meeting)
 
 
 class userAccountHasAccountViewTests(TestCase):
