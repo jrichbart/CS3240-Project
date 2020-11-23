@@ -1,13 +1,18 @@
 from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
-from .models import userAccount, Course, Availability, buddies, Message
+from .models import userAccount, Course, Availability, buddies, Message, ZoomMeeting
 from django.template import loader
 from django.contrib import messages
 from django.contrib.auth.models import User
 from .const_data import major_options, course_data, dummy_convo
 import random
 import json
+import requests
+from zoomus import ZoomClient
+import datetime
+from .forms import MyForm
+
 
 # Create your views here.
 
@@ -220,6 +225,9 @@ def buddy_select(request, buddy_name):
         user_availability = Availability.objects.get(student=currentUser).calendar
         buddy_availability = Availability.objects.get(student=buddy_account).calendar
 
+        form = MyForm()
+        meeting = currentUser.getUpcomingMeetings(buddy_account)
+
         # Notifications
         buddies_with_notifications = []
         buddy_num_notifications = {}
@@ -258,6 +266,8 @@ def buddy_select(request, buddy_name):
             'range7': range(7),
             'days': days,
             'times': times,
+            'form' : form,
+            'meeting' : meeting,
             'buddies_with_notifications': buddies_with_notifications,
             'buddy_num_notifications': buddy_num_notifications
         }
@@ -332,6 +342,45 @@ def save_contact(request):
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error updating contact information")
             return HttpResponseRedirect(reverse('userAccount:contact_info'))
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view contact information")
+            return HttpResponseRedirect(reverse('login:login'))
+
+def format_date(year, month, day, hour, minute, second):
+    if (hour > 19):
+        hour = (hour+5) % 24
+        date = datetime.datetime(year, month, day, hour, minute, second)
+        date += datetime.timedelta(days=1)
+        return date
+    else:
+        return datetime.datetime(year, month, day, hour+5, minute, second)
+
+def zoom(request):
+    try:
+        client = ZoomClient('3NKu1UtkSpW1FiCCrFrykg', '5qq7tR3ZBS2lJth3FgAqUasKDxP5KiYPMVPF')
+        user_list_response = client.user.list()
+        user_list = json.loads(user_list_response.content)
+        client_id = (user_list['users'][0]['id'])
+        dtime = request.POST.get("datetime_field")
+        date_time = dtime.split(" ")
+        date = date_time[0].split("-")
+        time = date_time[1].split(":")
+        zoom_date = format_date(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]), int(time[2]))
+        settings = {"host_video": True,"participant_video": True,"cn_meeting": False ,"in_meeting": False,"join_before_host": True, "mute_upon_entry": False,"watermark": False,"use_pmi": False,"approval_type": 2,"audio": "both","auto_recording": "none","alternative_hosts": "","close_registration": True,"waiting_room": False,"contact_name": "me","contact_email": "ec4kj@virginia.edu","registrants_email_notification": True,"meeting_authentication": False,"authentication_option": "","authentication_domains": ""}
+        meeting = client.meeting.create(user_id=client_id, start_time=zoom_date, topic="Study Buddy Meeting", settings=settings)
+        content = json.loads(meeting.content)
+        link = content["join_url"]
+        buddy_pk = request.POST.getlist('zoom_item')[0]
+        buddy_account = userAccount.objects.get(pk=buddy_pk)
+        currentUser = userAccount.objects.get(user=request.user)
+        buddyObject = currentUser.getBuddyObject(buddy_account)
+        meeting_object = ZoomMeeting(buddies=buddyObject, meeting_link=link, start_time=dtime)
+        meeting_object.save()
+        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+    except:
+        if(request.user.is_authenticated):
+            messages.add_message(request, messages.ERROR, "Error creating zoom meeting")
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view contact information")
             return HttpResponseRedirect(reverse('login:login'))

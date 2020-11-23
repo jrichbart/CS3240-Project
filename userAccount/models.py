@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.contrib.auth.models import User
+import datetime
 
 # Create your models here.
 class userAccount(models.Model):
@@ -49,6 +50,27 @@ class userAccount(models.Model):
         user2_courses = user2.courses.all()
         shared = [course for course in self_courses if course in user2_courses] 
         return shared
+    def getBuddyObject(self, buddy_object):
+        requested = self.requester.all()
+        for buddy in requested:
+            if (buddy.requestee==buddy_object and buddy.approved):
+                return buddy
+        requester = self.requestee.all()
+        for buddy in requester:
+            if (buddy.requester==buddy_object and buddy.approved):
+                return buddy
+        return None
+    def getUpcomingMeetings(self, buddy_object):
+        buddy = self.getBuddyObject(buddy_object)
+        meetings = buddy.buddies.all()
+        for meeting in meetings:
+            date_time = meeting.start_time.split(" ")
+            date = date_time[0].split("-")
+            time = date_time[1].split(":")
+            start = datetime.datetime(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]), int(time[2]))
+            if (datetime.datetime.now()+datetime.timedelta(hours=1) < start):
+                return meeting
+        return None
 
 class Course(models.Model):
     student = models.ForeignKey(userAccount, related_name='courses', on_delete=models.CASCADE)
@@ -74,6 +96,11 @@ class buddies(models.Model):
     approved = models.BooleanField()
     denied_message = models.TextField()
     denied = models.BooleanField()
+
+class ZoomMeeting(models.Model):
+    buddies = models.ForeignKey(buddies, related_name='buddies', on_delete=models.CASCADE)
+    meeting_link = models.TextField()
+    start_time = models.TextField()
 
 class Message(models.Model):
     unread = models.BooleanField()

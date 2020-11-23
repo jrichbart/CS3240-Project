@@ -5,6 +5,10 @@
 {% block content %}
 <head>
   <link rel="stylesheet" type="text/css" href="{% static 'userAccount/buddies.css' %}">
+  <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  {{ form.media }}
   <title>Your Buddies</title>
   <script>
     const numRows = 7 * 16;
@@ -455,11 +459,24 @@
               <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
                 Compare Availability
               </span>
-              <div class="buddy-footer">
-                <form class="button-form">
-                  <button class="btn btn-secondary">Generate Zoom Link</button>
+              {% if meeting %}
+                <div class="contact-info-row">
+                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }}</span>
+                </div>
+                <br>
+                <div class="contact-info-row">
+                  <span class="contact-info-label">Click <a href = "{{ meeting.meeting_link }}">here</a> to join</span>
+                </div>
+                {% else %}
+                <div class="buddy-footer">
+                <form method="post" action="{% url 'userAccount:zoom' %}" id = "zoom">
+                  {% csrf_token %}
+                  {{ form.as_p }}
+                  <button type="submit" class="btn btn-success" name="zoom_item" value="{{ selected_buddy.pk }}">Generate Zoom Link</button>
                 </form>
               </div>
+
+                {% endif %}
             {% endif %}
           </div>
         {% else %}
