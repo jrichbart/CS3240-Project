@@ -18,6 +18,64 @@
         main.push(false);
     }
 
+    let prevNumMessages = 0;
+    let convoLock = false;
+    let headerIsExpanded = false;
+
+    let idleTime = 0;
+    let sleep = false;
+
+    window.addEventListener("load", () => {
+
+      window.setInterval(function(){
+        GETConvo();
+      }, 1000);
+
+      window.setInterval(timerIncrement, 10000); // 10 sec
+
+      //Zero the idle timer on mouse movement.
+      $(document).mousemove(function (e) {
+          idleTime = 0;
+          timerIncrement();
+      });
+      $(document).keypress(function (e) {
+          idleTime = 0;
+          timerIncrement();
+      });
+
+      $("#message-textarea").bind("input", (event) => {
+        autoResize(event.target);
+      });
+
+      $("#message-container").bind('wheel', function(e)  {
+          noParentScroll($(this), e);
+      });
+
+      $("#message-textarea").bind('wheel', function(e)  {
+          noParentScroll($(this), e);
+      });
+    });
+
+    function timerIncrement() {
+      idleTime++;
+      if (idleTime > 11) { // 2 min
+          if (!sleep) console.log("sleeping");
+          sleep = true;
+      } else {
+          if (sleep) console.log("waking");
+          sleep = false;
+      }
+    }
+
+    function noParentScroll(t, e) {
+        if (e.originalEvent.deltaY <= 0 && t.scrollTop() === 0) {
+            e.preventDefault();
+        }
+        else if (e.originalEvent.deltaY >= 0 && t.scrollTop() == t.get(0).scrollHeight - t.innerHeight()) {
+            e.preventDefault();
+        }
+    }
+
     function openModal(yourCal, theirCal, theirName, theirLastName) {
         availData = {
             'yourCal': yourCal,
@@ -88,11 +146,140 @@
                 return;
         }
     }
+
+    function toggleChatHeader() {
+        const el = document.getElementById("chatBody");
+        if (el.classList.contains("collapsing")) return;
+
+        if (!el.classList.contains("show")) {
+          headerIsExpanded = true;
+          document.getElementById("chatHeader").classList.add("chat-header-expanded");
+          const messageContainer = document.getElementById("message-container");
+          setTimeout(() => messageContainer.scrollTop = messageContainer.scrollHeight, 50);
+        } else {
+          headerIsExpanded = false;
+          updateNotification(null);
+          document.getElementById("chatHeader").classList.remove("chat-header-expanded");
+        }
+    }
+
+    function autoResize(target) {
+        const wrapper = document.getElementById("message-field");
+        if (target.scrollHeight > 82) {
+          return;
+        } else if (target.scrollHeight > 33) {
+          target.style.height = 'inherit';
+          wrapper.style.height = 'min-content';
+        }
+
+        target.style.height = (target.scrollHeight + 4) + 'px';
+
+        if (target.scrollHeight === 58) {
+          wrapper.style.height = (target.scrollHeight + 48) + 'px';
+        } else if (target.scrollHeight === 82) {
+          wrapper.style.height = (target.scrollHeight + 72) + 'px';
+        }
+    }
+
+    function constructFromMsg(msg) {
+        let s = '<div class="from-message-wrapper"><div class="from-message">';
+        return s + msg + '</div></div>';
+    }
+
+    function constructToMsg(msg) {
+        let s = '<div class="to-message-wrapper"><div class="to-message">';
+        return s + msg + '</div></div>';
+    }
+
+    function onMessageKeyPress(event) {
+
+      // If the user has pressed enter
+      if (event.keyCode === 13) {
+          event.stopPropagation();
+          event.preventDefault();
+          sendMessage();
+      }
+    }
+
+    function GETConvo() {
+      if (sleep || '{{ selected_buddy.user.username }}'.length === 0) return;
+
+      const readMode = headerIsExpanded ? 'read' : 'peek';
+
+      $.get( "/profile/convo/" + '{{ selected_buddy.user.username }}' + '/' + readMode, function( data ) {
+        console.log('updated');
+        updateConvo(data.conversation, data.numMessages);
+        updateNotification(data.numUnread);
+      });
+    }
+
+    function updateConvo(c, num) {
+        if (!convoLock) {
+          convoLock = true;
+
+          const container = document.getElementById("message-container");
+          let s = container.innerHTML;
+          let updated = false;
+
+          // Sort by sequence
+          c = c.sort((a, b) => a.sequence < b.sequence ? -1 : 1);
+
+          for (let i = prevNumMessages; i < num; i++) {
+            updated = true;
+            if (c[i].left) {
+              s += constructFromMsg(c[i].content);
+            } else {
+              s += constructToMsg(c[i].content);
+            }
+          }
+          container.innerHTML = s;
+          prevNumMessages = num;
+          const messageContainer = document.getElementById("message-container");
+          setTimeout(() => {
+            if (updated) {
+              messageContainer.scrollTop = messageContainer.scrollHeight;
+            }
+          }, 300);
+
+          convoLock = false;
+        }
+    }
+
+    function updateNotification(numUnread) {
+        if (headerIsExpanded) {
+            document.getElementById("message-badge").style.opacity = 0;
+        } else {
+
+          if (numUnread > 0) {
+            document.getElementById("message-badge").style.opacity = 1;
+            document.getElementById("inner-message-badge").innerHTML = numUnread;
+          } else {
+            document.getElementById("message-badge").style.opacity = 0;
+          }
+        }
+    }
+
+    function sendMessage() {
+      if (!document.getElementById("message-textarea").value.trim() || '{{ selected_buddy.user.username }}'.length === 0) {
+        return;
+      }
+      const body = {
+        'buddy_name': '{{ selected_buddy.user.username }}',
+        'content': document.getElementById("message-textarea").value,
+        'csrfmiddlewaretoken': '{{ csrf_token }}'
+      }
+      $.post("{% url 'userAccount:new_msg' %}", body, function(data, status) {
+        if (status === "success") {
+          GETConvo();
+          document.getElementById("message-textarea").value = '';
+        }
+      });
+    }
   </script>
 </head>
 <body>
   <div class="container">
-    <div class="row">
+    <div id="row" class="row">
       <div class="col-md-6 left-col">
 
         <span class="buddies-header">My Buddies</span>
@@ -101,9 +288,16 @@
             <div class="list-group">
               {% for buddy in accepted_buddies %}
                 {% if buddy == selected_buddy %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined"><span>{{ buddy }}</span></a>
                 {% else %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+
+                  {% if buddies_with_notifications|has_item:buddy.user %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">
+                      <span>{{ buddy }}</span><div class="unread-badge"><span>{{ buddy_num_notifications|get_item:buddy.user }}</span></div>
+                    </a>
+                  {% else %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action"><span>{{ buddy }}</span></a>
+                  {% endif %}
                 {% endif %}
               {% endfor %}
             </div>
@@ -117,9 +311,16 @@
             <div class="list-group">
               {% for buddy in pending_your_approval %}
                 {% if buddy == selected_buddy %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined"><span>{{ buddy }}</span></a>
                 {% else %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                  
+                  {% if buddies_with_notifications|has_item:buddy.user %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">
+                      <span>{{ buddy }}</span><div class="unread-badge"><span>{{ buddy_num_notifications|get_item:buddy.user }}</span></div>
+                    </a>
+                  {% else %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action"><span>{{ buddy }}</span></a>
+                  {% endif %}
                 {% endif %}
               {% endfor %}
             </div>
@@ -133,9 +334,16 @@
             <div class="list-group">
               {% for buddy in pending_their_approval %}
                 {% if buddy == selected_buddy %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined">{{ buddy }}</a>
+                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action outlined"><span>{{ buddy }}</span></a>
                 {% else %}
-                  <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">{{ buddy }}</a>
+                  
+                  {% if buddies_with_notifications|has_item:buddy.user %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action">
+                      <span>{{ buddy }}</span><div class="unread-badge"><span>{{ buddy_num_notifications|get_item:buddy.user }}</span></div>
+                    </a>
+                  {% else %}
+                    <a href="{% url 'userAccount:buddy_select' buddy.user.username %}" class="list-group-item list-group-item-action"><span>{{ buddy }}</span></a>
+                  {% endif %}
                 {% endif %}
               {% endfor %}
             </div>
@@ -154,6 +362,43 @@
             {% endif %}
 
             <p>{{ selected_buddy.bio }}</p>
+
+            <div class="accordion" id="chatAccordian">
+              <div class="chat-wrapper">
+                <div
+                  class="chat-header" 
+                  id="chatHeader" 
+                  data-toggle="collapse"
+                  data-target="#chatBody" 
+                  aria-expanded="false" 
+                  aria-controls="chatBody"
+                  onclick="toggleChatHeader()"
+                  >
+                  <div class="chat-header-left">
+                    <img id="chat-icon" src="{% static 'userAccount/images/chat.svg' %}" class="chat-icon"/>
+                    <span class="chat-header-text">Messages</span>
+                  </div>
+                  <div id="message-badge" class="unread-badge message-unread-badge"><span id="inner-message-badge"></span></div>
+                </div>
+                <div id="chatBody" class="collapse" aria-labelledby="chatHeader" data-parent="#chatAccordian">
+                  <div class="chat-body">
+                    <div id="message-container" class="message-container">
+                      <!-- Will be filled by JS -->
+                    </div>
+                    <div id="message-field" class="message-field">
+                      <textarea
+                        id="message-textarea" 
+                        rows="1" 
+                        placeholder="Message" 
+                        class="message-field-textarea"
+                        onkeypress="onMessageKeyPress(event)"
+                        ></textarea>
+                      <img id="send-icon" onclick="sendMessage()" src="{% static 'userAccount/images/send.svg' %}" class="send-icon"/>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div> 
 
             <span class="buddies-subheader">Shared Courses</span>
             <div class="courses-container">

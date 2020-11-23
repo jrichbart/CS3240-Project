@@ -77,3 +77,38 @@ major_options = [
 ]
 
 course_data = settings.UVA_COURSES
+
+dummy_convo = [
+    {
+        "left": "True",
+        "content": "I accidentally bought bread with walnuts and almonds so now I’m eating my grilled cheese with a fork bc I’m afraid of touching the sandwich and contaminating my room"
+    },
+    {
+        "left": "False",
+        "content": "Sounds good! I want a walk too :)"
+    },
+    {
+        "left": "True",
+        "content": "It’s looking like we may be done around 12:30 but if playing this by ear adds stress to your schedule don’t worry about it"
+    },
+    {
+        "left": "False",
+        "content": "I’ll pretty much just be watching theory videos"
+    },
+    {
+        "left": "False",
+        "content": "Yeah of course!"
+    },
+    {
+        "left": "True",
+        "content": "What does your work schedule look like for the rest of the night?"
+    },
+    {
+        "left": "False",
+        "content": "Yeah of course!"
+    },
+    {
+        "left": "True",
+        "content": "What does your work schedule look like for the rest of the night?"
+    }
+]

@@ -1,11 +1,12 @@
 from django.shortcuts import render, get_object_or_404
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
-from .models import userAccount, Course, Availability, buddies, ZoomMeeting
+from .models import userAccount, Course, Availability, buddies, Message, ZoomMeeting
 from django.template import loader
 from django.contrib import messages
 from django.contrib.auth.models import User
-from .const_data import major_options, course_data
+from .const_data import major_options, course_data, dummy_convo
+import random
 import json
 import requests
 from zoomus import ZoomClient
@@ -160,17 +161,42 @@ def save(request):
             messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
 
+
 def view_buddies(request):
     if(request.user.is_authenticated):
         template = loader.get_template('userAccount/buddies.html')
         currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
+
+        buddies_with_notifications = []
+        buddy_num_notifications = {}
+
+        for buddy in buddies["accepted"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+
+        for buddy in buddies["pendingYourApproval"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+
+        for buddy in buddies["pendingTheirApproval"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+
         context = {
             'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
             'accepted_buddies' : buddies["accepted"],
             'pending_your_approval' : buddies["pendingYourApproval"],
             'pending_their_approval' : buddies["pendingTheirApproval"],
             'selected_buddy' : None,
+            'buddies_with_notifications': buddies_with_notifications,
+            'buddy_num_notifications': buddy_num_notifications
         }
         return HttpResponse(template.render(context,request))
     else:
@@ -202,6 +228,28 @@ def buddy_select(request, buddy_name):
         form = MyForm()
         meeting = currentUser.getUpcomingMeetings(buddy_account)
 
+        # Notifications
+        buddies_with_notifications = []
+        buddy_num_notifications = {}
+
+        for buddy in buddies["accepted"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+
+        for buddy in buddies["pendingYourApproval"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+
+        for buddy in buddies["pendingTheirApproval"]:
+            num_unread = get_num_unread(buddy, request.user)
+            if num_unread != 0:
+                buddies_with_notifications.append(buddy.user)
+                buddy_num_notifications[buddy.user] = num_unread
+        
         context = {
             'acc_name' : currentUser.first_name + ' ' +currentUser.last_name,
             'current_user': currentUser,
@@ -220,6 +268,8 @@ def buddy_select(request, buddy_name):
             'times': times,
             'form' : form,
             'meeting' : meeting,
+            'buddies_with_notifications': buddies_with_notifications,
+            'buddy_num_notifications': buddy_num_notifications
         }
         return HttpResponse(template.render(context,request))
     else:
@@ -334,3 +384,108 @@ def zoom(request):
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view contact information")
             return HttpResponseRedirect(reverse('login:login'))
+
+def get_buddy_obj(user, buddy_name):
+    buddy = User.objects.get(username=buddy_name)
+    buddy_acc = userAccount.objects.get(user=buddy)
+    user_acc = userAccount.objects.get(user=user)
+
+    user_is_requester = False
+
+    buddy_query = buddies.objects.filter(requester=buddy_acc, requestee=user_acc)
+    if buddy_query.count() == 0:
+        buddy_query = buddies.objects.filter(requester=user_acc, requestee=buddy_acc)
+        user_is_requester = True
+    else:
+        user_is_requester = False
+
+    if buddy_query.count() == 0:
+        return tuple()
+
+    return (buddy_query[0], user_is_requester)
+
+def get_num_unread(buddy, user):
+    buddy_obj_tuple = get_buddy_obj(user, buddy.user)
+    if len(buddy_obj_tuple) == 0:
+        return 0
+    
+    buddy_obj = buddy_obj_tuple[0]
+    user_is_requester = buddy_obj_tuple[1]
+
+    messages = Message.objects.filter(buddies=buddy_obj)
+
+    unread_count = 0
+    for message in messages:
+        if message.unread:
+            if user_is_requester and not message.from_requester:
+                unread_count += 1
+            elif not user_is_requester and message.from_requester:
+                unread_count += 1
+    return unread_count
+
+def get_conversation(request, buddy_name, read_mode):
+    try:
+        buddy_obj_tuple = get_buddy_obj(request.user, buddy_name)
+        if len(buddy_obj_tuple) == 0:
+            return JsonResponse({})
+
+        buddy_obj = buddy_obj_tuple[0]
+        user_is_requester = buddy_obj_tuple[1]
+
+        messages = Message.objects.filter(buddies=buddy_obj)
+        convo = []
+        for message in messages:
+            if user_is_requester:
+                convo.append({
+                    "left": not message.from_requester,
+                    "content": message.content,
+                    "sequence": message.sequence
+                })
+            else:
+                convo.append({
+                    "left": message.from_requester,
+                    "content": message.content,
+                    "sequence": message.sequence
+                })
+
+        mark_all_as_read = read_mode == "read"
+        if mark_all_as_read:
+            for message in messages:
+                if user_is_requester and not message.from_requester and message.unread:
+                    message.unread = False
+                    message.save()
+                elif not user_is_requester and message.from_requester and message.unread:
+                    message.unread = False
+                    message.save()
+
+        if user_is_requester:
+            num_unread = get_num_unread(buddy_obj.requestee, request.user)
+        else:
+            num_unread = get_num_unread(buddy_obj.requester, request.user)
+        return JsonResponse({
+            "conversation": convo,
+            "numMessages": len(convo),
+            "numUnread": num_unread
+        })
+    except:
+        return JsonResponse({})
+
+def new_message(request):
+    buddy_obj_tuple = get_buddy_obj(request.user, request.POST.get("buddy_name"))
+    if len(buddy_obj_tuple) == 0:
+        return HttpResponse()
+
+    buddy_obj = buddy_obj_tuple[0]
+    user_is_requester = buddy_obj_tuple[1]
+
+    sequence = Message.objects.filter(buddies=buddy_obj).count() + 1
+    
+    message = Message(
+        unread=True,
+        content=request.POST.get("content"),
+        sequence=sequence,
+        from_requester=user_is_requester,
+        buddies=buddy_obj
+        )
+    message.save()
+    return HttpResponse()

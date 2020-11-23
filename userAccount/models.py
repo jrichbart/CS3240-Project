@@ -101,3 +101,10 @@ class ZoomMeeting(models.Model):
     buddies = models.ForeignKey(buddies, related_name='buddies', on_delete=models.CASCADE)
     meeting_link = models.TextField()
     start_time = models.TextField()
+
+class Message(models.Model):
+    unread = models.BooleanField()
+    content = models.CharField(max_length=10000)
+    sequence = models.IntegerField()
+    from_requester = models.BooleanField()
+    buddies = models.ForeignKey(buddies, on_delete=models.CASCADE)

@@ -19,5 +19,7 @@ urlpatterns = [
     path('deny/', views.deny_buddy, name='deny_buddy'),
     path('contact/', views.contact_info, name='contact_info'),
     path('contact/save', views.save_contact, name='save_contact'),
-    path('zoom', views.zoom, name='zoom')
+    path('zoom', views.zoom, name='zoom'),
+    path('convo/<str:buddy_name>/<str:read_mode>', views.get_conversation, name='get_convo'),
+    path('message/', views.new_message, name='new_msg')
 ]
