@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import userAccount, Course, Availability, buddies, Message, ZoomMeeting
@@ -376,7 +376,12 @@ def zoom(request):
         buddyObject = currentUser.getBuddyObject(buddy_account)
         meeting_object = ZoomMeeting(buddies=buddyObject, meeting_link=link, start_time=dtime)
         meeting_object.save()
-        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+
+        src_url = request.META.get('HTTP_REFERER')
+        if src_url != None:
+            return redirect(src_url)
+        else:
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
     except:
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error creating zoom meeting")
