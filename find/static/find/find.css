@@ -271,3 +271,21 @@
     height: 416px;
     padding-left: 10px;
 }
+
+.no-buddies-message {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.no-buddies-message-text {
+    text-align: center;
+    color: grey;
+    font-size: 22px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
