@@ -4,7 +4,7 @@ from django.urls import reverse
 
 # Create your tests here.
 
-from .models import userAccount, Course, buddies, ZoomMeeting
+from .models import userAccount, Course, buddies, ZoomMeeting, Availability
 
 def create_user(user, name, major, bio):
     """
@@ -31,6 +31,11 @@ def create_zoom_meeting(buddies, meeting_link, start_time):
     """
     return ZoomMeeting.objects.create(buddies=buddies, meeting_link=meeting_link, start_time=start_time)
 
+def create_availability(student, calendar):
+    """
+    creates an availability object
+    """
+    return Availability.objects.create(student=student,calendar=calendar)
 
 class userAccountModelTest(TestCase):
     def test_self_str(self):
@@ -346,3 +351,25 @@ class userAccountDenyBuddyViewTests(TestCase):
         url = reverse('userAccount:view_buddies')
         response = self.client.get(url, follow=True)
         self.assertContains(response, "No Requests Pending")
+
+class userAccountDeleteMeetingViewTests(TestCase):
+    def test_delete_meeting(self):
+        """
+        deleting a meeting updates view
+        """
+        testUser = User.objects.create_user(username="testUser", password="testPassword")
+        testRequestee = User.objects.create_user(username="testRequestee", password="testPassword")
+        testAccount = create_user(user=testUser, first_name="John", last_name="Doe", major="CS", bio="sample")
+        testRequesteeAccount = create_user(user=testRequestee, first_name="John", last_name="Doe", major="CS", bio="sample")
+        avail1 = create_availability(student=testAccount, calendar="")
+        avail2 = create_availability(student=testRequesteeAccount, calendar="")
+        buddy_object = create_buddy(testAccount,testRequesteeAccount, True)
+        meeting = create_zoom_meeting(buddies=buddy_object, meeting_link="zoom.us", start_time="2021-11-23 12:00:00")
+        login = self.client.force_login(testUser)
+        url = reverse('userAccount:removezoom')
+        pk = ZoomMeeting.objects.all()[0].pk
+        data = {'meeting_item' : [pk]}
+        self.client.post(url,data)
+        url2 = reverse('userAccount:buddy_select', kwargs={'buddy_name':'testRequestee'})
+        response = self.client.get(url2, follow=True)
+        self.assertContains(response, "Generate Zoom Link")

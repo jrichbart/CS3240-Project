@@ -461,17 +461,24 @@
               </span>
               {% if meeting %}
                 <div class="contact-info-row">
-                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }}</span>
+                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }} EST</span>
                 </div>
                 <br>
                 <div class="contact-info-row">
                   <span class="contact-info-label">Click <a href = "{{ meeting.meeting_link }}">here</a> to join</span>
                 </div>
+                <br>
+                <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" name="meeting_item" value="{{ meeting.pk }}">Delete Meeting</button>
+                </form>
                 {% else %}
                 <div class="buddy-footer">
                 <form method="post" action="{% url 'userAccount:zoom' %}" id = "zoom">
                   {% csrf_token %}
                   {{ form.as_p }}
+                  Time is in EST
+                  <br>
                   <button type="submit" class="btn btn-success" name="zoom_item" value="{{ selected_buddy.pk }}">Generate Zoom Link</button>
                 </form>
               </div>
