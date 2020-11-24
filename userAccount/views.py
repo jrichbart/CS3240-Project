@@ -1,4 +1,4 @@
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.urls import reverse
 from .models import userAccount, Course, Availability, buddies, Message, ZoomMeeting
@@ -164,8 +164,12 @@ def save(request):
 
 def view_buddies(request):
     if(request.user.is_authenticated):
+        if (userAccount.objects.filter(user=request.user).count() > 0):
+            currentUser = userAccount.objects.get(user=request.user)
+        else:
+            return HttpResponseRedirect(reverse('login:home'))
+
         template = loader.get_template('userAccount/buddies.html')
-        currentUser = userAccount.objects.get(user=request.user)
         buddies = currentUser.getBuddies()
 
         buddies_with_notifications = []
@@ -376,8 +380,13 @@ def zoom(request):
         buddyObject = currentUser.getBuddyObject(buddy_account)
         meeting_object = ZoomMeeting(buddies=buddyObject, meeting_link=link, start_time=dtime)
         meeting_object.save()
+
         messages.add_message(request, messages.SUCCESS, "Meeting created successfully")
-        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+        src_url = request.META.get('HTTP_REFERER')
+        if src_url != None:
+            return redirect(src_url)
+        else:
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
     except:
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error creating zoom meeting")
@@ -392,7 +401,12 @@ def remove_zoom(request):
         meeting_to_delete = ZoomMeeting.objects.get(pk=meeting_pk)
         meeting_to_delete.delete()
         messages.add_message(request, messages.SUCCESS, "Meeting deleted")
-        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+
+        src_url = request.META.get('HTTP_REFERER')
+        if src_url != None:
+            return redirect(src_url)
+        else:
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
     except:
         if(request.user.is_authenticated):
             messages.add_message(request, messages.ERROR, "Error deleteing meeting")

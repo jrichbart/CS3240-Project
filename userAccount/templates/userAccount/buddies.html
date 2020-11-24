@@ -6,8 +6,6 @@
 <head>
   <link rel="stylesheet" type="text/css" href="{% static 'userAccount/buddies.css' %}">
   <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.css">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
   {{ form.media }}
   <title>Your Buddies</title>
   <script>
@@ -54,6 +52,12 @@
       $("#message-textarea").bind('wheel', function(e)  {
           noParentScroll($(this), e);
       });
+
+      $('label[for="id_datetime_field"]').hide ();
+
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
     });
 
     function timerIncrement() {
@@ -413,8 +417,13 @@
                 <img src="{% static 'userAccount/images/padlock.png' %}" class="padlock-icon"/>
               </div>
               <i>Contact info will be available after the request is approved.</i>
-              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
-                Compare Availability
+              <span class="compare-availability">
+                <span
+                  class="compare-availability-text"
+                  onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'
+                  >
+                  Compare Availability
+                </span>
               </span>
               <div class="buddy-footer">
                 <div class="buddy-form">
@@ -434,8 +443,13 @@
                 <img src="{% static 'userAccount/images/padlock.png' %}" class="padlock-icon"/>
               </div>
               <i>Contact info will be available after the request is approved.</i>
-              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
-                Compare Availability
+              <span class="compare-availability">
+                <span
+                  class="compare-availability-text"
+                  onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'
+                  >
+                  Compare Availability
+                </span>
               </span>
               <div class="buddy-footer">
                 <span class="pending-their-approval-text">This request is pending {{ selected_buddy.first_name }}'s approval</span>
@@ -456,34 +470,43 @@
                   <span class="contact-info-data">{{ selected_buddy.discord_name }}</span>
                 </div>
               </div>
-              <span class="compare-availability" onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'>
-                Compare Availability
-              </span>
               {% if meeting %}
-                <div class="contact-info-row">
-                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }} EST</span>
+                <span class="buddies-subheader">
+                  Upcoming Zoom Meeting
+                </span>
+                <div class="zoom-meeting-container zoom-bottom-space">
+                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }} EST.</span>
                 </div>
-                <br>
-                <div class="contact-info-row">
-                  <span class="contact-info-label">Click <a href = "{{ meeting.meeting_link }}">here</a> to join</span>
+                <div class="zoom-meeting-container">
+                  <a href="{{ meeting.meeting_link }}"><button class="btn btn-primary" style="margin-right: 15px;">Join Meeting</button></a>
+                  <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger" name="meeting_item" value="{{ meeting.pk }}">Cancel Meeting</button>
+                  </form>
                 </div>
-                <br>
-                <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-danger" name="meeting_item" value="{{ meeting.pk }}">Delete Meeting</button>
-                </form>
-                {% else %}
-                <div class="buddy-footer">
-                <form method="post" action="{% url 'userAccount:zoom' %}" id = "zoom">
-                  {% csrf_token %}
-                  {{ form.as_p }}
-                  Time is in EST
-                  <br>
-                  <button type="submit" class="btn btn-success" name="zoom_item" value="{{ selected_buddy.pk }}">Generate Zoom Link</button>
-                </form>
-              </div>
-
-                {% endif %}
+              {% else %}
+                <span class="buddies-subheader">
+                  Schedule a Zoom Meeting
+                  <span data-toggle="tooltip" title="Set a date and time for your meeting using the widget below. All times are in EST.">
+                    <img id="info-icon" src="{% static 'userAccount/images/info-circle.svg' %}" class="info-icon"/>
+                  </span>
+                </span>
+                <div class="zoom-datepicker-container">
+                  <form method="post" style="width: 100%;" action="{% url 'userAccount:zoom' %}" id = "zoom">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-success" name="zoom_item" value="{{ selected_buddy.pk }}">Generate Zoom Link</button>
+                  </form>
+                </div>
+              {% endif %}
+              <span class="compare-availability">
+                <span
+                  class="compare-availability-text"
+                  onclick='openModal("{{ user_availability }}", "{{ buddy_availability }}", "{{ selected_buddy.first_name }}", "{{ selected_buddy.last_name }}")'
+                  >
+                  Compare Availability
+                </span>
+              </span>
             {% endif %}
           </div>
         {% else %}
