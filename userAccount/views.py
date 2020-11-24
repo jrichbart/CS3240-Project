@@ -377,6 +377,7 @@ def zoom(request):
         meeting_object = ZoomMeeting(buddies=buddyObject, meeting_link=link, start_time=dtime)
         meeting_object.save()
 
+        messages.add_message(request, messages.SUCCESS, "Meeting created successfully")
         src_url = request.META.get('HTTP_REFERER')
         if src_url != None:
             return redirect(src_url)
@@ -388,6 +389,21 @@ def zoom(request):
             return HttpResponseRedirect(reverse('userAccount:view_buddies'))
         else:
             messages.add_message(request, messages.ERROR, "Login before attempting to view contact information")
+            return HttpResponseRedirect(reverse('login:login'))
+
+def remove_zoom(request):
+    try:
+        meeting_pk = request.POST.getlist('meeting_item')[0]
+        meeting_to_delete = ZoomMeeting.objects.get(pk=meeting_pk)
+        meeting_to_delete.delete()
+        messages.add_message(request, messages.SUCCESS, "Meeting deleted")
+        return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+    except:
+        if(request.user.is_authenticated):
+            messages.add_message(request, messages.ERROR, "Error deleteing meeting")
+            return HttpResponseRedirect(reverse('userAccount:view_buddies'))
+        else:
+            messages.add_message(request, messages.ERROR, "Login before attempting to view account")
             return HttpResponseRedirect(reverse('login:login'))
 
 def get_buddy_obj(user, buddy_name):

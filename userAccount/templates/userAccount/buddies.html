@@ -482,6 +482,10 @@
                 </div>
                 <div class="zoom-meeting-container">
                   <a href="{{ meeting.meeting_link }}"><button class="btn btn-primary" style="margin-right: 15px;">Join Meeting</button></a>
+                  <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger" name="meeting_item" value="{{ meeting.pk }}">Delete Meeting</button>
+                  </form>
                   <a href=""><button class="btn btn-outline-danger">Cancel Meeting</button></a>
                 </div>
               {% else %}

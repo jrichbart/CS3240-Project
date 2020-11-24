@@ -62,14 +62,18 @@ class userAccount(models.Model):
         return None
     def getUpcomingMeetings(self, buddy_object):
         buddy = self.getBuddyObject(buddy_object)
+        if (not buddy):
+            return None
         meetings = buddy.buddies.all()
         for meeting in meetings:
             date_time = meeting.start_time.split(" ")
             date = date_time[0].split("-")
             time = date_time[1].split(":")
             start = datetime.datetime(int(date[0]), int(date[1]), int(date[2]), int(time[0]), int(time[1]), int(time[2]))
-            if (datetime.datetime.now()+datetime.timedelta(hours=1) < start):
+            if (datetime.datetime.now()-datetime.timedelta(hours=1) < start):
                 return meeting
+            else:
+                meeting.delete()
         return None
 
 class Course(models.Model):
