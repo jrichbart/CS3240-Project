@@ -108,7 +108,7 @@ Date Accessed: 24 November 2020\
 Code version: 2.25.0\
 URL: https://requests.readthedocs.io/en/master/
 \
-Software License: Apache 2.0\
+Software License: Apache 2.0
 
 Title: Sweet Alert\
 Author: Tristan Edwards\
