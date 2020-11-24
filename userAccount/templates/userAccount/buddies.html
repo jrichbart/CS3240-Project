@@ -467,6 +467,11 @@
                 <div class="contact-info-row">
                   <span class="contact-info-label">Click <a href = "{{ meeting.meeting_link }}">here</a> to join</span>
                 </div>
+                <br>
+                <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-danger" name="meeting_item" value="{{ meeting.pk }}">Delete Meeting</button>
+                </form>
                 {% else %}
                 <div class="buddy-footer">
                 <form method="post" action="{% url 'userAccount:zoom' %}" id = "zoom">
