@@ -247,51 +247,58 @@
         </div>
     </div>
     <div class="separator"></div>
-    <div class="buddy-container">
-        {% for buddy in filtered_buddy_list %}
-        <div id="{{ buddy.user.email }}" class="buddy-card">
-            <div class="buddy-header-container">
-                <span class="buddy-header-text">{{buddy.firstName}}&nbsp;{{buddy.lastName}}</span>
-                <span
-                    id="{{ buddy.major }}"
-                    class="buddy-subheader-text"
-                    >
-                    {% if buddy.numBuddies == 1 %}
-                        {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddy &nbsp; • &nbsp; {{ buddy.availability_string }}
-                    {% else %}
-                        {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddies &nbsp; • &nbsp; {{ buddy.availability_string }}
-                    {% endif %}
-                </span>
-                <div id="{{ buddy.availability_string }}" class="availability-data"></div>
-            </div>
-            <div class="buddy-body-container">
-                <span class="buddy-body-text">{{buddy.bio}}</span>
-            </div>
-            <div class="buddy-course-container">
-                {% for course in buddy.courses %}
-                    {% if course in userCourses %}
-                        <div
-                            class="course-chip"
-                            id="{{course.mnemonic}} {{course.number}}"
-                            >
-                            {{course.mnemonic}}&nbsp;{{course.number}}
-                        </div>
-                    {% endif %}
-                {% endfor %}
-            </div>
-            <div class="buddy-footer-container">
-                {% if buddy.availability_string != "No Availability Data" %}
-                    <span class="availability-link" onclick='openModal("{{ userAvailability }}", "{{ userAccount.first_name }}", "{{ buddy.raw_availability }}", "{{ buddy.firstName }}", "{{ buddy.lastName }}", "{{ buddy.user.user }}")'>
-                        Compare Availability
+    {% if filtered_buddy_list|length > 0 %}
+        <div class="buddy-container">
+            {% for buddy in filtered_buddy_list %}
+            <div id="{{ buddy.user.email }}" class="buddy-card">
+                <div class="buddy-header-container">
+                    <span class="buddy-header-text">{{buddy.firstName}}&nbsp;{{buddy.lastName}}</span>
+                    <span
+                        id="{{ buddy.major }}"
+                        class="buddy-subheader-text"
+                        >
+                        {% if buddy.numBuddies == 1 %}
+                            {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddy &nbsp; • &nbsp; {{ buddy.availability_string }}
+                        {% else %}
+                            {{buddy.major}} Major &nbsp; • &nbsp; {{buddy.numBuddies}} Study Buddies &nbsp; • &nbsp; {{ buddy.availability_string }}
+                        {% endif %}
                     </span>
-                {% else %}
-                    <div></div>
-                {% endif %}
-                <a href="{% url 'find:view_send_request' buddy.user.user %}"><button type="button" class="btn btn-primary">Send Buddy Request</button></a>
+                    <div id="{{ buddy.availability_string }}" class="availability-data"></div>
+                </div>
+                <div class="buddy-body-container">
+                    <span class="buddy-body-text">{{buddy.bio}}</span>
+                </div>
+                <div class="buddy-course-container">
+                    {% for course in buddy.courses %}
+                        {% if course in userCourses %}
+                            <div
+                                class="course-chip"
+                                id="{{course.mnemonic}} {{course.number}}"
+                                >
+                                {{course.mnemonic}}&nbsp;{{course.number}}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="buddy-footer-container">
+                    {% if buddy.availability_string != "No Availability Data" %}
+                        <span class="availability-link" onclick='openModal("{{ userAvailability }}", "{{ userAccount.first_name }}", "{{ buddy.raw_availability }}", "{{ buddy.firstName }}", "{{ buddy.lastName }}", "{{ buddy.user.user }}")'>
+                            Compare Availability
+                        </span>
+                    {% else %}
+                        <div></div>
+                    {% endif %}
+                    <a href="{% url 'find:view_send_request' buddy.user.user %}"><button type="button" class="btn btn-primary">Send Buddy Request</button></a>
+                </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
-    </div>
+    {% else %}
+        <div class="no-buddies-message">
+            <span class="no-buddies-message-text"><em>Oh no! There aren't any buddies that match your course list.</em><br><em>Make sure you've added all of your courses to your profile!</em></span>
+            <a href="{% url 'userAccount:has_account' %}"><button type="button" class="btn btn-primary">Edit Profile</button></a>
+        </div>
+    {% endif %}
 </div>
 
 <!-- Modal -->
