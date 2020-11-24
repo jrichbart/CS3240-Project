@@ -173,7 +173,7 @@ UVA_COURSES = format(get(), '2020 Fall')
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/New_York'
 
 USE_I18N = True
 
