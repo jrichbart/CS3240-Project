@@ -62,6 +62,8 @@ class userAccount(models.Model):
         return None
     def getUpcomingMeetings(self, buddy_object):
         buddy = self.getBuddyObject(buddy_object)
+        if (not buddy):
+            return None
         meetings = buddy.buddies.all()
         for meeting in meetings:
             date_time = meeting.start_time.split(" ")
