@@ -473,25 +473,21 @@
               {% if meeting %}
                 <span class="buddies-subheader">
                   Upcoming Zoom Meeting
-                  <span data-toggle="tooltip" title="Times are in EST">
-                    <img id="info-icon" src="{% static 'userAccount/images/info-circle.svg' %}" class="info-icon"/>
-                  </span>
                 </span>
                 <div class="zoom-meeting-container zoom-bottom-space">
-                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }}.</span>
+                  <span class="contact-info-label">You have an upcoming Study Buddy Meeting at {{ meeting.start_time }} EST.</span>
                 </div>
                 <div class="zoom-meeting-container">
                   <a href="{{ meeting.meeting_link }}"><button class="btn btn-primary" style="margin-right: 15px;">Join Meeting</button></a>
                   <form method="post" action="{% url 'userAccount:removezoom' %}" id = "zoom">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger" name="meeting_item" value="{{ meeting.pk }}">Delete Meeting</button>
+                    <button type="submit" class="btn btn-outline-danger" name="meeting_item" value="{{ meeting.pk }}">Cancel Meeting</button>
                   </form>
-                  <a href=""><button class="btn btn-outline-danger">Cancel Meeting</button></a>
                 </div>
               {% else %}
                 <span class="buddies-subheader">
                   Schedule a Zoom Meeting
-                  <span data-toggle="tooltip" title="Times are in EST">
+                  <span data-toggle="tooltip" title="Set a date and time for your meeting using the widget below. All times are in EST.">
                     <img id="info-icon" src="{% static 'userAccount/images/info-circle.svg' %}" class="info-icon"/>
                   </span>
                 </span>

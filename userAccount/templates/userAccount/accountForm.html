@@ -10,7 +10,7 @@
 
   let isLoaded = false;
 
-  let courses = "{{ courses }}".split(",");
+  let courses = "{{ courses }}".split(",").filter(s => s !== '');
   let courseDataEncoded = "{{ course_data }}";
   let courseData;
   let selectedCourseMnemonic = "";
