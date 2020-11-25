@@ -126,3 +126,12 @@ Code version: 1.1.3\
 URL: https://github.com/prschmid/zoomus/
 \
 Software License: Apache License
+\
+Title: popper\
+Author: Federico Zivolo\
+Date Accessed: 24 November 2020\
+Date Initially Released: 29 March 2016\
+Code version: 1.16.1\
+URL: https://github.com/popperjs/popper-core
+\
+Software License: MIT
