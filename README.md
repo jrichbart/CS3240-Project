@@ -125,7 +125,7 @@ Date Initially Released: 7 December 2015\
 Code version: 1.1.3\
 URL: https://github.com/prschmid/zoomus/
 \
-Software License: Apache License
+Software License: Apache License\
 \
 Title: popper\
 Author: Federico Zivolo\
